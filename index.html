@@ -1,0 +1,1834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>PP — Create account</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root{
+        --bg:#FFFFFF;
+        --bg-dot:#EDE9FE;
+        --paper:#FFFFFF;
+        --paper-2:#F7F8F7;
+        --ink:#101613;
+        --ink-2:#4B5750;
+        --ink-3:#8A968F;
+        --line:#E2E7E3;
+        --line-dashed:#CBD5CE;
+        --accent:#6D28D9;
+        --accent-hover:#5B21B6;
+        --accent-soft:#EDE9FE;
+        --amber:#B7791F;
+        --error:#C0392B;
+        --error-bg:#FDF0EE;
+        --input-bg:#FFFFFF;
+        --input-border:#D6DDD8;
+        --input-border-focus:#6D28D9;
+        --shadow:0 1px 2px rgba(16,22,19,.06),0 12px 32px rgba(16,22,19,.10),0 32px 64px rgba(16,22,19,.06);
+        --radius:20px;
+        --dash-bg:#F6F5FA;
+        --bal-bg:#EAE4FB;
+        --promo-bg:#F4F1FD;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0C100E;
+          --bg-dot:#1A211D;
+          --paper:#151A17;
+          --paper-2:#1B211E;
+          --ink:#EEF2EF;
+          --ink-2:#A7B3AB;
+          --ink-3:#6E7C73;
+          --line:#242C27;
+          --line-dashed:#2E3832;
+          --accent:#A78BFA;
+          --accent-hover:#C4B5FD;
+          --accent-soft:#2A1F4D;
+          --amber:#E0A93E;
+          --error:#FF7A6B;
+          --error-bg:#2B1714;
+          --input-bg:#101412;
+          --input-border:#2A332E;
+          --input-border-focus:#A78BFA;
+          --shadow:0 1px 2px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.45);
+          --dash-bg:#131020;
+          --bal-bg:#2B2150;
+          --promo-bg:#1D1834;
+        }
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0;
+        font-family:"DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        background:
+          radial-gradient(circle at 1px 1px, var(--bg-dot) 1px, transparent 0);
+        background-size:22px 22px;
+        background-color:var(--bg);
+        color:var(--ink);
+        -webkit-font-smoothing:antialiased;
+      }
+      .page{
+        min-height:100dvh;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        padding:28px 18px 36px;
+      }
+      /* Receipt card */
+      .receipt-wrap{
+        width:100%;
+        max-width:440px;
+        filter:drop-shadow(var(--shadow));
+      }
+      .receipt{
+        background:var(--paper);
+        border:1px solid var(--line);
+        border-bottom:none;
+        border-radius:var(--radius) var(--radius) 6px 6px;
+        overflow:hidden;
+      }
+      /* zigzag bottom edge like torn receipt */
+      .receipt-edge{
+        height:12px;
+        background:var(--paper);
+        border-left:1px solid var(--line);
+        border-right:1px solid var(--line);
+        border-bottom:1px solid var(--line);
+        /* triangles */
+        background-image:
+          linear-gradient(45deg, transparent 33.333%, var(--paper) 33.333%, var(--paper) 66.667%, transparent 66.667%),
+          linear-gradient(-45deg, transparent 33.333%, var(--paper) 33.333%, var(--paper) 66.667%, transparent 66.667%);
+        background-size:16px 32px;
+        background-position:0 -16px;
+        position:relative;
+      }
+      .receipt-edge::after{
+        content:"";
+        position:absolute; inset:0;
+        background:var(--bg);
+        /* punch the zigzag by overlaying bg triangles at bottom — simpler: use clip */
+        clip-path:polygon(0 100%, 2.5% 35%, 5% 100%, 7.5% 35%, 10% 100%, 12.5% 35%, 15% 100%, 17.5% 35%, 20% 100%, 22.5% 35%, 25% 100%, 27.5% 35%, 30% 100%, 32.5% 35%, 35% 100%, 37.5% 35%, 40% 100%, 42.5% 35%, 45% 100%, 47.5% 35%, 50% 100%, 52.5% 35%, 55% 100%, 57.5% 35%, 60% 100%, 62.5% 35%, 65% 100%, 67.5% 35%, 70% 100%, 72.5% 35%, 75% 100%, 77.5% 35%, 80% 100%, 82.5% 35%, 85% 100%, 87.5% 35%, 90% 100%, 92.5% 35%, 95% 100%, 97.5% 35%, 100% 100%);
+        opacity:1;
+      }
+      /* Simpler edge fallback if clip looks off: keep dotted tear line */
+      .tear{
+        display:flex; align-items:center; gap:10px;
+        padding:0 28px;
+        color:var(--ink-3);
+      }
+      .tear::before,.tear::after{content:""; height:1px; flex:1; background-image:linear-gradient(to right, var(--line-dashed) 55%, transparent 45%); background-size:8px 1px; background-repeat:repeat-x;}
+      .tear span{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;}
+
+      .head{ padding:28px 28px 0; text-align:center; }
+      .mark{
+        width:46px; height:46px; margin:0 auto 14px;
+        background:var(--ink); color:var(--paper);
+        border-radius:12px;
+        display:grid; place-items:center;
+      }
+      .mark svg{width:24px;height:24px}
+      .brand-mono{
+        font-family:"IBM Plex Mono",monospace;
+        font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+        color:var(--ink-3); font-weight:600;
+      }
+      h1{
+        font-family:"DM Serif Display",serif;
+        font-weight:400;
+        font-size:26px; line-height:1.05; letter-spacing:-.01em;
+        margin:8px 0 8px;
+      }
+      .sub{ margin:0 auto; max-width:32ch; color:var(--ink-2); font-size:12.5px; line-height:1.5; }
+      .meta-row{
+        display:flex; justify-content:space-between; gap:12px;
+        padding:18px 28px 0;
+        font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--ink-3);
+      }
+      form{ padding:20px 28px 8px; }
+      .field{ margin-bottom:16px; }
+      label{ display:block; font-size:12px; font-weight:600; letter-spacing:-.01em; margin-bottom:7px; }
+      .input-wrap{ position:relative; }
+      input{
+        width:100%;
+        appearance:none;
+        background:var(--input-bg);
+        border:1px solid var(--input-border);
+        border-radius:12px;
+        padding:13px 14px;
+        font-size:13px; line-height:1.3;
+        color:var(--ink);
+        outline:none;
+        transition:border-color .15s, box-shadow .15s;
+      }
+      input::placeholder{color:var(--ink-3)}
+      input:focus{ border-color:var(--input-border-focus); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+      input[aria-invalid="true"]{ border-color:var(--error); }
+      input[aria-invalid="true"]:focus{ box-shadow:0 0 0 4px color-mix(in srgb, var(--error) 14%, transparent); }
+      .has-toggle input{ padding-right:46px; }
+      /* phone field with country code */
+      .phone-row{ display:flex; gap:8px; align-items:stretch; }
+      .phone-row input{ flex:1; min-width:0; }
+      .country-code{ flex:0 0 142px; position:relative; }
+      .country-code select{
+        width:100%; height:100%;
+        appearance:none; -webkit-appearance:none;
+        background:var(--input-bg);
+        border:1px solid var(--input-border);
+        border-radius:12px;
+        padding:13px 26px 13px 11px;
+        font-size:12.5px; line-height:1.3;
+        color:var(--ink);
+        outline:none; cursor:pointer;
+        font-family:inherit;
+        transition:border-color .15s, box-shadow .15s;
+      }
+      .country-code::after{
+        content:""; position:absolute; right:12px; top:50%;
+        width:8px; height:8px; pointer-events:none;
+        border-right:1.8px solid var(--ink-3); border-bottom:1.8px solid var(--ink-3);
+        transform:translateY(-70%) rotate(45deg);
+      }
+      .country-code select:focus{ border-color:var(--input-border-focus); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+      .field.has-error .country-code select,
+      .field.has-error .phone-row input{ border-color:var(--error); }
+      .toggle{
+        position:absolute; right:6px; top:50%; transform:translateY(-50%);
+        width:36px; height:36px; border:0; background:transparent; border-radius:9px;
+        display:grid; place-items:center; cursor:pointer; color:var(--ink-3);
+      }
+      .toggle:hover{ background:var(--paper-2); color:var(--ink-2); }
+      .toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+      .toggle svg{width:20px;height:20px}
+      .hint{ font-size:11px; color:var(--ink-3); margin-top:6px; line-height:1.45; }
+      .error-text{ display:none; font-size:11px; color:var(--error); margin-top:6px; line-height:1.45; font-weight:500; }
+      .field.has-error .error-text{ display:block; }
+      .field.has-error .hint{ display:none; }
+
+      /* strength */
+      .strength{ margin-top:9px; display:none; }
+      .strength.show{ display:block; }
+      .bar{ height:5px; border-radius:99px; background:var(--line); overflow:hidden; }
+      .bar i{ display:block; height:100%; width:0%; border-radius:99px; transition:width .25s ease, background .25s; background:var(--error); }
+      .strength-label{ display:flex; justify-content:space-between; margin-top:6px; font-size:10.5px; color:var(--ink-2); }
+      .strength-label strong{ font-weight:600; color:var(--ink); }
+
+      .btn{
+        width:100%;
+        border:0; cursor:pointer;
+        background:var(--accent); color:#fff;
+        font-family:inherit; font-size:13px; font-weight:700; letter-spacing:-.01em;
+        padding:14px 16px; border-radius:12px; margin-top:6px;
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        transition:background .15s, transform .05s;
+      }
+      @media (prefers-color-scheme: dark){ .btn{ color:#1E1033; } }
+      .btn:hover{ background:var(--accent-hover); }
+      .btn:active{ transform:translateY(1px); }
+      .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+      .btn[disabled]{ opacity:.65; cursor:wait; }
+      .btn .spinner{ width:16px;height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; animation:spin .7s linear infinite; display:none; }
+      .btn.loading .spinner{ display:block; }
+      @keyframes spin{ to{ transform:rotate(360deg);} }
+      @media (prefers-reduced-motion: reduce){ .btn .spinner{ animation:none; } *{ transition:none !important; } }
+
+      .form-error{
+        display:none;
+        background:var(--error-bg); color:var(--error);
+        border:1px solid color-mix(in srgb, var(--error) 25%, transparent);
+        font-size:12px; font-weight:500; line-height:1.45;
+        padding:11px 13px; border-radius:11px; margin-bottom:14px;
+      }
+      .form-error.show{ display:block; }
+
+      .foot{ padding:6px 28px 26px; text-align:center; }
+      .foot p{ margin:10px 0 0; font-size:12px; color:var(--ink-2); }
+      .foot a{ color:var(--ink); font-weight:600; text-decoration:none; border-bottom:1px solid var(--line-dashed); }
+      .foot a:hover{ border-bottom-color:var(--ink); }
+      .terms{ font-size:11px !important; color:var(--ink-3) !important; line-height:1.55; max-width:36ch; margin-left:auto !important; margin-right:auto !important; }
+      .terms a{ font-weight:500; color:var(--ink-2); }
+
+      .below{ margin-top:18px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em; color:var(--ink-3); }
+
+      /* Success receipt */
+      .success{ display:none; padding:8px 28px 26px; }
+      .success.show{ display:block; }
+      .success-badge{
+        width:52px;height:52px; border-radius:50%;
+        background:var(--accent-soft); color:var(--accent);
+        display:grid; place-items:center; margin:6px auto 12px;
+      }
+      .success-badge svg{width:26px;height:26px}
+      .success h2{ font-family:"DM Serif Display",serif; font-weight:400; font-size:20px; text-align:center; margin:0 0 6px; }
+      .success .lead{ text-align:center; color:var(--ink-2); font-size:12.5px; line-height:1.55; margin:0 auto 18px; max-width:34ch; }
+      .slip{
+        background:var(--paper-2); border:1px solid var(--line); border-radius:14px; padding:16px;
+        font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+      }
+      .slip-row{ display:flex; justify-content:space-between; gap:16px; padding:7px 0; }
+      .slip-row + .slip-row{ border-top:1px dashed var(--line-dashed); }
+      .slip-row dt{ color:var(--ink-3); flex-shrink:0; }
+      .slip-row dd{ margin:0; font-weight:600; text-align:right; word-break:break-all; }
+      .barcode{ margin:18px auto 4px; height:44px; max-width:260px;
+        background-image:repeating-linear-gradient(to right, var(--ink) 0 2px, transparent 2px 5px, var(--ink) 5px 6px, transparent 6px 10px, var(--ink) 10px 13px, transparent 13px 15px, var(--ink) 15px 16px, transparent 16px 21px);
+        opacity:.85; border-radius:2px;
+      }
+      .barcode-num{ text-align:center; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.28em; color:var(--ink-3); margin-bottom:16px; }
+      .success .btn{ margin-top:4px; }
+      .btn-secondary{
+        background:transparent; color:var(--ink); border:1px solid var(--input-border); margin-top:10px;
+      }
+      .btn-secondary:hover{ background:var(--paper-2); }
+      @media (prefers-color-scheme: dark){ .btn-secondary{ color:var(--ink); } }
+
+      /* ============ DASHBOARD ============ */
+      .page.dash-mode{ justify-content:flex-start; padding-top:20px; }
+      .dashboard{ width:100%; max-width:480px; display:flex; flex-direction:column; gap:14px; }
+      .dashboard[hidden]{ display:none; }
+      .dash-banner{ display:flex; gap:10px; align-items:center; background:var(--accent-soft); border:1px solid var(--line); border-radius:14px; padding:11px 14px; font-size:12px; font-weight:600; }
+      .dash-banner svg{ width:19px; height:19px; color:var(--accent); flex-shrink:0; }
+      .dash-banner button{ margin-left:auto; border:0; background:transparent; font-size:13.5px; line-height:1; cursor:pointer; color:var(--ink-2); padding:4px; }
+      .dash-head{ display:flex; align-items:center; gap:12px; }
+      .avatar{ width:48px; height:48px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-weight:700; font-size:14px; flex-shrink:0; }
+      .dash-greet{ display:flex; flex-direction:column; flex:1; min-width:0; }
+      .dash-hi{ font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .dash-phone{ font-size:11px; color:var(--ink-2); font-family:"IBM Plex Mono",monospace; }
+      .icon-btn{ position:relative; width:40px; height:40px; border:1px solid var(--line); background:var(--paper); border-radius:12px; display:grid; place-items:center; cursor:pointer; color:var(--ink-2); flex-shrink:0; }
+      .icon-btn:hover{ background:var(--paper-2); }
+      .icon-btn svg{ width:21px; height:21px; }
+      .badge{ position:absolute; top:-6px; right:-6px; background:#E5484D; color:#fff; font-size:9.5px; font-weight:700; border-radius:99px; padding:1px 5px; }
+      .balance-card{ background:var(--accent-soft); border-radius:18px; padding:18px; }
+      .bal-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+      .bal-label{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-2); }
+      .bal-label svg{ width:17px; height:17px; color:var(--accent); }
+      .eye-btn{ border:0; background:transparent; cursor:pointer; color:var(--ink-2); display:grid; place-items:center; padding:4px; border-radius:8px; }
+      .eye-btn svg{ width:19px; height:19px; color:var(--ink-2); }
+      .link-btn{ border:0; background:transparent; cursor:pointer; font-family:inherit; font-size:11.5px; font-weight:600; color:var(--ink-2); padding:4px 0; white-space:nowrap; }
+      .link-btn:hover{ color:var(--accent); }
+      .bal-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap; }
+      .bal-amount{ font-size:26px; font-weight:700; letter-spacing:-.02em; }
+      .btn-add{ width:auto; margin:0; padding:11px 20px; border-radius:99px; font-size:12.5px; }
+      .bal-sub{ margin-top:12px; padding-top:12px; border-top:1px solid color-mix(in srgb, var(--accent) 18%, transparent); font-size:12px; color:var(--ink-2); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+      .bal-sub .earn{ color:#0E9F6E; }
+      .add-panel{ margin-top:14px; background:var(--paper); border-radius:14px; padding:14px; }
+      .add-panel label{ margin-bottom:6px; }
+      .add-row{ display:flex; gap:8px; }
+      .add-row input{ flex:1; min-width:0; }
+      .add-row .btn{ width:auto; margin:0; padding:12px 20px; }
+      .add-note{ font-size:11px; color:var(--ink-2); margin:9px 0 0; line-height:1.45; }
+      .add-note:empty{ display:none; }
+      .dash-status{ display:none; background:var(--ink); color:var(--paper); border-radius:12px; padding:11px 14px; font-size:12px; line-height:1.5; }
+      .dash-status.show{ display:block; }
+      .history-panel{ background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:16px 18px 8px; }
+      .history-panel h3{ margin:0 0 6px; font-size:13px; display:flex; align-items:center; gap:8px; }
+      .tx-list{ list-style:none; margin:0; padding:0; }
+      .tx-list li{ display:flex; justify-content:space-between; align-items:center; gap:14px; padding:11px 0; }
+      .tx-list li + li{ border-top:1px dashed var(--line-dashed); }
+      .tx-list strong{ display:block; font-size:12px; }
+      .tx-list .tx-when{ font-size:10.5px; color:var(--ink-3); }
+      .tx-amt{ font-weight:700; font-size:12px; white-space:nowrap; }
+      .tx-amt.credit{ color:#0E9F6E; }
+      .quick-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+      .quick-card{ background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:15px 4px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; font-size:11.5px; font-weight:600; cursor:pointer; color:var(--ink); font-family:inherit; }
+      .quick-card:hover{ border-color:color-mix(in srgb, var(--accent) 45%, transparent); }
+      .quick-card svg{ width:28px; height:28px; color:var(--accent); }
+      .tx-banner{ background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:15px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+      .tx-banner strong{ display:block; font-size:13px; }
+      .tx-banner span{ font-size:11.5px; color:var(--ink-2); }
+      .tx-banner .tx-when{ text-align:right; font-size:11px; color:var(--ink-3); white-space:nowrap; }
+      .services{ background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:10px 8px 4px; display:grid; grid-template-columns:repeat(4,1fr); }
+      .svc{ background:none; border:0; display:flex; flex-direction:column; align-items:center; gap:7px; padding:11px 2px 13px; font-size:11px; font-weight:500; color:var(--ink); cursor:pointer; font-family:inherit; border-radius:12px; }
+      .svc:hover{ background:var(--paper-2); }
+      .svc svg{ width:26px; height:26px; }
+      .svc .ic-purple{ color:var(--accent); } .svc .ic-teal{ color:#0E9594; } .svc .ic-blue{ color:#2F7DE1; } .svc .ic-green{ color:#0E9F6E; }
+      .promo{ background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:16px 18px; display:flex; align-items:center; gap:14px; }
+      .promo-icon{ width:46px; height:46px; border-radius:50%; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; flex-shrink:0; }
+      .promo-icon svg{ width:23px; height:23px; }
+      .promo strong{ display:block; font-size:13px; }
+      .promo span{ font-size:11.5px; color:var(--ink-2); line-height:1.45; display:block; }
+      .promo .btn-outline{ margin-left:auto; flex-shrink:0; border:1.5px solid var(--accent); color:var(--accent); background:transparent; font-family:inherit; font-weight:700; font-size:12px; padding:9px 22px; border-radius:99px; cursor:pointer; }
+      .promo .btn-outline:hover{ background:var(--accent-soft); }
+      .promo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .promo-card{ background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:5px; }
+      .promo-card h4{ margin:0; font-size:12.5px; color:var(--accent); }
+      .promo-card p{ margin:0; font-size:11px; color:var(--ink-2); line-height:1.5; }
+      .promo-big{ font-size:16px; font-weight:700; color:#0E9F6E; margin-top:6px; }
+      .promo-small{ font-size:10.5px; color:var(--ink-3); }
+      .promo-card .btn{ margin-top:10px; padding:10px 14px; font-size:12px; border-radius:99px; }
+      .tab-panel{ background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:20px 18px; }
+      .tab-panel h3{ margin:0 0 8px; font-size:15px; }
+      .tab-panel p{ margin:0; color:var(--ink-2); font-size:12.5px; line-height:1.6; }
+      .tab-panel .slip{ margin-top:16px; }
+      .tab-bar{ position:sticky; bottom:0; background:var(--paper); border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(5,1fr); padding:8px 4px calc(8px + env(safe-area-inset-bottom)); margin:2px -18px -36px; z-index:5; }
+      .tab-btn{ background:none; border:0; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; color:var(--ink-2); cursor:pointer; font-family:inherit; padding:4px 0; }
+      .tab-btn svg{ width:22px; height:22px; }
+      .tab-btn.active{ color:var(--accent); font-weight:700; }
+      /* --- Dashboard: reference arrangement --- */
+      body.dash-on{ background-color:var(--dash-bg); background-image:none; }
+      .dashboard .dash-head{ padding:4px 2px 2px; }
+      .dashboard .avatar{ width:50px; height:50px; font-size:13.5px; }
+      .dashboard .dash-hi{ font-size:15.5px; font-weight:800; text-transform:uppercase; letter-spacing:-.01em; }
+      .dashboard .dash-phone{ display:none; }
+      .dashboard .icon-btn{ border:0; background:transparent; width:42px; height:42px; border-radius:50%; color:var(--ink); }
+      .dashboard .icon-btn:hover{ background:color-mix(in srgb, var(--accent) 8%, transparent); }
+      .dashboard .icon-btn svg{ width:25px; height:25px; }
+      .dashboard .badge{ top:0; right:-2px; font-size:9px; padding:2px 5px; }
+      .dashboard .balance-card{ background:var(--bal-bg); border-radius:22px; padding:20px; box-shadow:0 12px 30px rgba(88,60,220,.12); }
+      .dashboard .bal-label{ color:var(--ink); font-size:12.5px; }
+      .dashboard .bal-label svg{ width:19px; height:19px; }
+      .dashboard .link-btn{ color:var(--ink); font-size:12px; }
+      .bal-amt-wrap{ display:inline-flex; align-items:center; gap:3px; }
+      .bal-chev{ font-size:21px; font-weight:600; color:var(--ink-2); line-height:1; }
+      .dashboard .bal-amount{ font-size:30px; font-weight:800; }
+      .dashboard .btn-add{ padding:12px 26px; font-size:12.5px; box-shadow:0 8px 18px rgba(109,40,217,.32); }
+      .earn-strip{ margin-top:12px; background:var(--paper); border-radius:16px; padding:12px 16px; display:flex; align-items:center; gap:9px; font-size:12px; box-shadow:0 1px 3px rgba(31,24,71,.05),0 10px 26px rgba(31,24,71,.05); }
+      .earn-strip svg{ width:21px; height:21px; color:var(--accent); flex-shrink:0; }
+      .earn-strip .earn-txt strong{ color:#0E9F6E; }
+      .earn-strip .earn-chev{ margin-left:auto; }
+      .earn-chev{ width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; font-size:12.5px; font-weight:700; flex-shrink:0; line-height:1; }
+      .dashboard .quick-card{ border-color:transparent; border-radius:18px; padding:16px 4px 13px; box-shadow:0 1px 3px rgba(31,24,71,.05),0 10px 26px rgba(31,24,71,.05); }
+      .dashboard .quick-card svg{ width:30px; height:30px; }
+      .dashboard .tx-banner,.dashboard .services,.dashboard .promo,.dashboard .history-panel,.dashboard .tab-panel{ border-color:transparent; box-shadow:0 1px 3px rgba(31,24,71,.05),0 10px 26px rgba(31,24,71,.05); }
+      .dashboard .tx-banner strong{ font-size:13.5px; font-weight:800; }
+      .dashboard .promo{ flex-direction:column; align-items:stretch; }
+      .promo-main{ display:flex; align-items:center; gap:14px; }
+      .promo-dots{ display:flex; justify-content:center; gap:5px; margin-top:13px; }
+      .promo-dots i{ width:7px; height:7px; border-radius:99px; background:color-mix(in srgb, var(--accent) 22%, transparent); }
+      .promo-dots i.on{ width:17px; background:var(--accent); }
+      .dashboard .promo-card{ background:var(--promo-bg); border-color:transparent; box-shadow:0 1px 3px rgba(31,24,71,.04),0 10px 26px rgba(31,24,71,.04); }
+      @media (max-width:480px){ .tab-bar{ margin-left:-12px; margin-right:-12px; margin-bottom:-28px; } .bal-amount{ font-size:24px; } }
+
+      /* ============ TRANSFER FLOW & RECEIPTS ============ */
+      .flow-view{ width:100%; max-width:480px; display:flex; flex-direction:column; gap:14px; }
+      .flow-view[hidden]{ display:none; }
+      .flow-head{ display:flex; align-items:center; gap:12px; padding:4px 2px 0; }
+      .flow-head h2{ margin:0; font-size:16px; font-weight:800; letter-spacing:-.01em; }
+      .flow-head .icon-btn{ margin-left:auto; }
+      .flow-back{ width:40px; height:40px; border:0; background:transparent; border-radius:50%; display:grid; place-items:center; cursor:pointer; color:var(--ink); flex-shrink:0; padding:0; }
+      .flow-back:hover{ background:color-mix(in srgb, var(--accent) 8%, transparent); }
+      .flow-back svg{ width:23px; height:23px; }
+      .flow-card{ background:var(--paper); border-radius:18px; padding:20px 18px; box-shadow:0 1px 3px rgba(31,24,71,.05),0 10px 26px rgba(31,24,71,.05); }
+      .flow-card form{ padding:0; }
+      .select-wrap{ position:relative; }
+      .select-wrap select{
+        width:100%; appearance:none; -webkit-appearance:none;
+        background:var(--input-bg); border:1px solid var(--input-border); border-radius:12px;
+        padding:13px 38px 13px 14px; font-size:13px; line-height:1.3; color:var(--ink);
+        font-family:inherit; outline:none; cursor:pointer;
+        transition:border-color .15s, box-shadow .15s;
+      }
+      .select-wrap::after{
+        content:""; position:absolute; right:14px; top:50%; width:8px; height:8px; pointer-events:none;
+        border-right:1.8px solid var(--ink-3); border-bottom:1.8px solid var(--ink-3);
+        transform:translateY(-70%) rotate(45deg);
+      }
+      .select-wrap select:focus{ border-color:var(--input-border-focus); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+      .field.has-error .select-wrap select{ border-color:var(--error); }
+      .bank-badge{ width:64px; height:64px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-size:20px; font-weight:800; margin:2px auto 12px; }
+      .bank-badge.sm{ width:52px; height:52px; font-size:16px; }
+      .bank-badge.grad{ background:linear-gradient(135deg,#B04FD8,#6D28D9); }
+      .bank-badge svg{ width:30px; height:30px; }
+      .rc-title{ text-align:center; font-size:13px; font-weight:600; margin:0; line-height:1.4; }
+      .rc-amount{ text-align:center; font-size:28px; font-weight:800; letter-spacing:-.02em; margin:8px 0 10px; }
+      .rc-status{ display:flex; align-items:center; justify-content:center; gap:7px; color:var(--ink-2); font-size:12.5px; margin:0; }
+      .ok-dot{ width:22px; height:22px; border-radius:50%; background:#12B76A; color:#fff; display:grid; place-items:center; flex-shrink:0; }
+      .ok-dot svg{ width:12px; height:12px; }
+      .rc-chev{ color:var(--ink-3); font-size:14px; line-height:1; }
+      .timeline{ display:flex; margin:22px 0 18px; }
+      .tl-step{ flex:1; text-align:center; position:relative; padding:0 2px; }
+      .tl-step::before{ content:""; position:absolute; top:13px; left:calc(-50% + 15px); right:calc(50% + 15px); height:2px; background:#12B76A; }
+      .tl-step:first-child::before{ display:none; }
+      .tl-dot{ width:26px; height:26px; border-radius:50%; background:#12B76A; color:#fff; display:grid; place-items:center; margin:0 auto 8px; position:relative; z-index:1; }
+      .tl-dot svg{ width:14px; height:14px; }
+      .tl-label{ display:block; font-size:12px; font-weight:600; line-height:1.3; }
+      .tl-time{ display:block; font-size:10.5px; color:var(--ink-3); margin-top:4px; }
+      .note-box{ background:var(--accent-soft); color:var(--ink-2); border-radius:12px; padding:13px 15px; font-size:12px; line-height:1.55; margin:0 0 6px; text-align:center; }
+      .note-box.left{ text-align:left; }
+      .note-link{ color:var(--accent); font-weight:600; }
+      .detail-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:18px; padding:10px 0; }
+      .d-label{ color:var(--ink-3); font-size:12.5px; flex-shrink:0; padding-top:1px; }
+      .d-value{ font-weight:600; font-size:12.5px; text-align:right; }
+      .d-value.mono{ font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; }
+      .d-value.break{ word-break:break-all; max-width:64%; }
+      .d-sub{ display:block; font-weight:400; color:var(--ink-3); font-size:11.5px; margin-top:3px; }
+      .strike{ text-decoration:line-through; color:var(--ink-3); font-weight:500; }
+      .waived{ color:#0E9F6E; font-size:11px; font-weight:700; margin-left:6px; }
+      .copy-btn{ border:0; background:transparent; color:var(--ink-3); cursor:pointer; padding:2px; margin-left:4px; vertical-align:-3px; border-radius:6px; }
+      .copy-btn:hover{ color:var(--accent); }
+      .copy-btn svg{ width:16px; height:16px; }
+      .receipt-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      .receipt-actions button{ background:transparent; border:0; color:var(--accent); font-family:inherit; font-weight:700; font-size:12.5px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 6px; cursor:pointer; border-radius:12px; }
+      .receipt-actions button:hover{ background:var(--accent-soft); }
+      .receipt-actions svg{ width:19px; height:19px; }
+      .dispute-note{ background:var(--paper); border-radius:14px; padding:13px 16px; font-size:12px; color:var(--ink-2); line-height:1.55; margin:0; box-shadow:0 1px 3px rgba(31,24,71,.05),0 10px 26px rgba(31,24,71,.05); }
+      .tx-list li.clickable{ cursor:pointer; border-radius:10px; }
+      .tx-list li.clickable:hover{ background:var(--paper-2); }
+      .tx-chev{ color:var(--ink-3); font-size:14px; line-height:1; }
+      .promo-flex{ display:flex; align-items:center; gap:14px; }
+      .promo-flex strong{ display:block; font-size:13px; }
+      .promo-flex span{ font-size:11.5px; color:var(--ink-2); line-height:1.45; display:block; }
+      .go-btn{ width:auto; margin:0 0 0 auto; padding:10px 26px; border-radius:99px; font-size:12.5px; flex-shrink:0; }
+      .svc-q{ margin:0 0 10px; font-size:12.5px; color:var(--ink-2); }
+      .svc-link{ border:0; background:transparent; color:var(--accent); font-family:inherit; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:9px; cursor:pointer; padding:0; }
+      .svc-link svg{ width:21px; height:21px; }
+      .modal{ position:fixed; inset:0; background:rgba(12,9,28,.52); display:grid; place-items:center; padding:20px; z-index:50; }
+      .modal[hidden]{ display:none; }
+      .modal-card{ background:var(--paper); border-radius:18px; max-width:400px; width:100%; padding:24px 22px; max-height:90dvh; overflow:auto; box-shadow:var(--shadow); }
+      .modal-card .slip{ margin-top:14px; }
+      .toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(16px); background:var(--ink); color:var(--paper); padding:11px 20px; border-radius:99px; font-size:12px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:60; max-width:88vw; text-align:center; }
+      .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+      @media (max-width:480px){
+        .page{ padding:16px 12px 28px; justify-content:flex-start; padding-top:22px; }
+        form,.head{ padding-left:22px; padding-right:22px; }
+        .meta-row,.foot,.success{ padding-left:22px; padding-right:22px; }
+        h1{ font-size:24px; }
+        input{ font-size:14px; } /* prevents iOS zoom */
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="receipt-wrap" id="receiptWrap">
+        <div class="receipt">
+          <!-- ============ SIGN UP VIEW ============ -->
+          <div id="signupView">
+            <div class="head">
+              <div class="mark" aria-hidden="true">
+                <span style="font-weight:700;font-size:13.5px;letter-spacing:.03em">PP</span>
+              </div>
+              <div class="brand-mono">PP</div>
+              <h1>Create your account</h1>
+              <p class="sub">Send money, pay bills, top up airtime, and save — all from your phone.</p>
+            </div>
+
+            <div class="meta-row" aria-hidden="true">
+              <span>NEW ACCOUNT</span><span>NO. 0001</span>
+            </div>
+            <div class="tear" aria-hidden="true" style="margin-top:14px"><span>Sign up</span></div>
+
+            <form id="signupForm" novalidate>
+              <div class="form-error" id="formError" role="alert"></div>
+
+              <div class="field" id="field-name">
+                <label for="name">Full name</label>
+                <div class="input-wrap">
+                  <input id="name" name="name" type="text" autocomplete="name" placeholder="e.g. Adaeze Okafor" autocapitalize="words" />
+                </div>
+                <p class="error-text" id="err-name"></p>
+              </div>
+
+              <div class="field" id="field-phone">
+                <label for="phone">Phone number</label>
+                <div class="phone-row">
+                  <div class="country-code">
+                    <select id="countryCode" name="countryCode" aria-label="Country code" autocomplete="tel-country-code">
+                      <option value="+234" selected>Nigeria +234</option>
+                      <option value="+233">Ghana +233</option>
+                      <option value="+254">Kenya +254</option>
+                      <option value="+27">South Africa +27</option>
+                      <option value="+256">Uganda +256</option>
+                      <option value="+255">Tanzania +255</option>
+                      <option value="+237">Cameroon +237</option>
+                      <option value="+225">Côte d’Ivoire +225</option>
+                      <option value="+221">Senegal +221</option>
+                      <option value="+251">Ethiopia +251</option>
+                      <option value="+20">Egypt +20</option>
+                      <option value="+212">Morocco +212</option>
+                      <option value="+44">United Kingdom +44</option>
+                      <option value="+1">United States +1</option>
+                      <option value="+1">Canada +1</option>
+                      <option value="+91">India +91</option>
+                      <option value="+92">Pakistan +92</option>
+                      <option value="+880">Bangladesh +880</option>
+                      <option value="+971">UAE +971</option>
+                      <option value="+966">Saudi Arabia +966</option>
+                      <option value="+86">China +86</option>
+                      <option value="+81">Japan +81</option>
+                      <option value="+61">Australia +61</option>
+                      <option value="+49">Germany +49</option>
+                      <option value="+33">France +33</option>
+                      <option value="+39">Italy +39</option>
+                      <option value="+34">Spain +34</option>
+                      <option value="+55">Brazil +55</option>
+                      <option value="+52">Mexico +52</option>
+                    </select>
+                  </div>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="803 123 4567" autocapitalize="none" spellcheck="false" />
+                </div>
+                <p class="hint">Enter your mobile number without the country code — we’ll add it from the list.</p>
+                <p class="error-text" id="err-phone"></p>
+              </div>
+
+              <div class="field" id="field-password">
+                <label for="password">Password</label>
+                <div class="input-wrap has-toggle">
+                  <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Create a password" />
+                  <button type="button" class="toggle" id="togglePw" aria-label="Show password" aria-pressed="false">
+                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S5.8 5.5 12 5.5 21.5 12 21.5 12 18.2 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg id="eyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M4 4l16 16"/><path d="M9.9 5.9A9.8 9.8 0 0 1 12 5.5c6.2 0 9.5 6.5 9.5 6.5a17.6 17.6 0 0 1-3.3 3.7M6 8A16.9 16.9 0 0 0 2.5 12S5.8 18.5 12 18.5c1.1 0 2.1-.2 3-.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                  </button>
+                </div>
+                <p class="hint" id="pwHint">At least 8 characters, with a letter and a number.</p>
+                <p class="error-text" id="err-password"></p>
+                <div class="strength" id="strength" aria-hidden="true">
+                  <div class="bar"><i id="strengthBar"></i></div>
+                  <div class="strength-label"><span>Password strength</span><strong id="strengthText"></strong></div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn" id="submitBtn">
+                <span class="spinner" aria-hidden="true"></span>
+                <span id="submitLabel">Create account</span>
+              </button>
+            </form>
+
+            <div class="foot">
+              <p>Already have an account? <a href="#" id="signinLink">Sign in</a></p>
+              <p class="terms">By creating an account you agree to the <a href="#" onclick="return false">Terms</a> and <a href="#" onclick="return false">Privacy Policy</a>.</p>
+            </div>
+          </div>
+
+          <!-- ============ SIGN IN VIEW ============ -->
+          <div id="signinView" hidden>
+            <div class="head">
+              <div class="mark" aria-hidden="true">
+                <span style="font-weight:700;font-size:13.5px;letter-spacing:.03em">PP</span>
+              </div>
+              <div class="brand-mono">PP</div>
+              <h1>Welcome back</h1>
+              <p class="sub">Sign in with your phone number and password to pick up where you left off.</p>
+            </div>
+
+            <div class="meta-row" aria-hidden="true">
+              <span>SIGN IN</span><span>NO. 0002</span>
+            </div>
+            <div class="tear" aria-hidden="true" style="margin-top:14px"><span>Sign in</span></div>
+
+            <form id="signinForm" novalidate>
+              <div class="form-error" id="siFormError" role="alert"></div>
+
+              <div class="field" id="field-si-phone">
+                <label for="siPhone">Phone number</label>
+                <div class="phone-row">
+                  <div class="country-code">
+                    <select id="siCountryCode" name="siCountryCode" aria-label="Country code" autocomplete="tel-country-code"></select>
+                  </div>
+                  <input id="siPhone" name="siPhone" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="803 123 4567" autocapitalize="none" spellcheck="false" />
+                </div>
+                <p class="hint">Use the same number you signed up with.</p>
+                <p class="error-text" id="err-si-phone"></p>
+              </div>
+
+              <div class="field" id="field-si-password">
+                <label for="siPassword">Password</label>
+                <div class="input-wrap has-toggle">
+                  <input id="siPassword" name="siPassword" type="password" autocomplete="current-password" placeholder="Enter your password" />
+                  <button type="button" class="toggle" id="toggleSiPw" aria-label="Show password" aria-pressed="false">
+                    <svg id="siEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S5.8 5.5 12 5.5 21.5 12 21.5 12 18.2 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg id="siEyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M4 4l16 16"/><path d="M9.9 5.9A9.8 9.8 0 0 1 12 5.5c6.2 0 9.5 6.5 9.5 6.5a17.6 17.6 0 0 1-3.3 3.7M6 8A16.9 16.9 0 0 0 2.5 12S5.8 18.5 12 18.5c1.1 0 2.1-.2 3-.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                  </button>
+                </div>
+                <p class="error-text" id="err-si-password"></p>
+              </div>
+
+              <button type="submit" class="btn" id="siSubmitBtn">
+                <span class="spinner" aria-hidden="true"></span>
+                <span id="siSubmitLabel">Sign in</span>
+              </button>
+            </form>
+
+            <div class="foot">
+              <p>New to PP? <a href="#" id="createAccountLink">Create account</a></p>
+              <p class="terms">By signing in you agree to the <a href="#" onclick="return false">Terms</a> and <a href="#" onclick="return false">Privacy Policy</a>.</p>
+            </div>
+          </div>
+
+        </div>
+        <div class="receipt-edge" aria-hidden="true"></div>
+      </div>
+
+      <!-- ============ DASHBOARD VIEW ============ -->
+      <section class="dashboard" id="dashboardView" hidden aria-label="Your PP dashboard">
+        <div class="dash-banner" id="dashBanner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg>
+          <span>Account created — welcome to PP.</span>
+          <button type="button" id="bannerClose" aria-label="Dismiss">×</button>
+        </div>
+
+        <div class="dash-head">
+          <div class="avatar" id="dashAvatar" aria-hidden="true">P</div>
+          <div class="dash-greet">
+            <span class="dash-hi">Hi, <span id="dashName">Friend</span></span>
+            <span class="dash-phone" id="dashPhone"></span>
+          </div>
+          <button type="button" class="icon-btn" data-soon="Support" aria-label="Support">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg>
+          </button>
+          <button type="button" class="icon-btn" data-soon="Notifications" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>
+            <span class="badge">99+</span>
+          </button>
+        </div>
+
+        <div id="tabHome">
+          <div class="balance-card">
+            <div class="bal-top">
+              <span class="bal-label">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#12B76A" d="M12 2.8 19.5 5.6v5.1c0 4.9-3.2 9.2-7.5 10.5C7.7 19.9 4.5 15.6 4.5 10.7V5.6L12 2.8Z"/><path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8.9 11.9l2.1 2.1 4.1-4.3"/></svg>
+                Available Balance
+                <button type="button" class="eye-btn" id="balToggle" aria-label="Hide balance" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S5.8 5.5 12 5.5 21.5 12 21.5 12 18.2 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </span>
+              <button type="button" class="link-btn" id="historyBtn" aria-expanded="false">Transaction History ›</button>
+            </div>
+            <div class="bal-row">
+              <span class="bal-amt-wrap"><span class="bal-amount" id="balAmount">₦1,250.00</span><span class="bal-chev" aria-hidden="true">›</span></span>
+              <button type="button" class="btn btn-add" id="addMoneyBtn" aria-expanded="false">Add Money</button>
+            </div>
+            <div class="add-panel" id="addPanel" hidden>
+              <label for="addAmount">Amount (₦)</label>
+              <div class="add-row">
+                <input id="addAmount" type="number" min="1" step="any" inputmode="decimal" placeholder="e.g. 500" />
+                <button type="button" class="btn" id="confirmAddBtn">Add</button>
+              </div>
+              <div class="field" style="margin-top:14px;margin-bottom:12px">
+                <label for="addSender">Sender name (optional)</label>
+                <input id="addSender" type="text" autocomplete="off" placeholder="Who sent this money?" />
+              </div>
+              <div class="field" style="margin-bottom:4px">
+                <label for="addBank">Sender bank (optional)</label>
+                <div class="select-wrap"><select id="addBank" aria-label="Sender bank"></select></div>
+              </div>
+              <p class="add-note" id="addNote"></p>
+            </div>
+          </div>
+
+          <div class="earn-strip">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="12" cy="5.6" rx="7" ry="2.9"/><path d="M5 5.6v4.2c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9V5.6c-1.6 1.1-4.1 1.8-7 1.8s-5.4-.7-7-1.8Z"/><path d="M5 12.1v4.2c0 1.6 3.1 2.9 7 2.9s7-1.3 7-2.9v-4.2c-1.6 1.1-4.1 1.8-7 1.8s-5.4-.7-7-1.8Z"/></svg>
+            <span class="earn-txt">Yesterday's Earnings: <strong>+₦12.50</strong></span>
+            <span class="earn-chev" aria-hidden="true">›</span>
+          </div>
+
+          <div class="history-panel" id="historyPanel" hidden style="margin-top:14px">
+            <h3>Recent transactions</h3>
+            <ul class="tx-list" id="txList">
+              <li><div><strong>Transfer received</strong><span class="tx-when">Today · 09:41</span></div><span class="tx-amt credit">+₦2,100.00</span></li>
+              <li><div><strong>Airtime top-up</strong><span class="tx-when">Yesterday · 18:02</span></div><span class="tx-amt">−₦200.00</span></li>
+              <li><div><strong>Transfer to bank</strong><span class="tx-when">Yesterday · 12:27</span></div><span class="tx-amt">−₦1,500.00</span></li>
+            </ul>
+          </div>
+
+          <p class="dash-status" id="dashStatus" role="status" style="margin:14px 0 0"></p>
+
+          <nav class="quick-row" aria-label="Quick actions" style="margin-top:14px">
+            <button type="button" class="quick-card" id="toBankBtn">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.9 3 8.4c-.5.3-.3 1.1.3 1.1h17.4c.6 0 .8-.8.3-1.1L12 2.9Z"/><path d="M4.4 11h2.8v6H4.4zM8.7 11h2.8v6H8.7zM13 11h2.8v6H13zM17.3 11h2.8v6h-2.8z"/><path d="M3 18.4h18c.6 0 1 .4 1 1s-.4 1-1 1H3c-.6 0-1-.4-1-1s.4-1 1-1Z"/></svg>
+              To Bank
+            </button>
+            <button type="button" class="quick-card" data-soon="Transfer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.5 3h13A2.5 2.5 0 0 1 21 5.5v9a2.5 2.5 0 0 1-2.5 2.5H13l-4.2 3.4c-.4.3-1 .1-1-.5V17H5.5A2.5 2.5 0 0 1 3 14.5v-9A2.5 2.5 0 0 1 5.5 3Z"/><circle cx="12" cy="8.9" r="2.6" fill="#fff"/><path fill="#fff" d="M7.1 15.2c.7-2.1 2.6-3.4 4.9-3.4s4.2 1.3 4.9 3.4c-1.4.9-3.1 1.4-4.9 1.4s-3.5-.5-4.9-1.4Z"/></svg>
+              Transfer
+            </button>
+            <button type="button" class="quick-card" data-soon="Savings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.4" cy="3.4" r="2" fill="currentColor"/><ellipse cx="11.3" cy="13.4" rx="7.4" ry="5.4" fill="currentColor"/><circle cx="17.9" cy="12.6" r="2.2" fill="currentColor"/><circle cx="8.1" cy="11.4" r="1.1" fill="#fff"/><circle cx="17.3" cy="12.4" r=".55" fill="#fff"/><circle cx="18.5" cy="12.4" r=".55" fill="#fff"/><path fill="currentColor" d="M6.8 17.6 6.2 20c-.1.5.3.9.8.9h.9c.4 0 .7-.2.8-.6l.6-2.1c-.9-.2-1.7-.4-2.5-.8ZM14.9 17.8l.5 2c.1.4.4.6.8.6h.9c.5 0 .9-.4.8-.9l-.6-2.2c-.8.2-1.6.4-2.4.5Z"/></svg>
+              Savings
+            </button>
+            <button type="button" class="quick-card" data-soon="Loan">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.3 1.9c.3-.5 1-.5 1.3 0l1.5 2.1c.3.4.1 1-.4 1.1-.9.2-1.8.3-2.7.3s-1.8-.1-2.7-.3c-.5-.1-.7-.7-.4-1.1l1.5-2.1c.2-.3.5-.4.9-.4Z"/><path fill="currentColor" d="M12 6.2c3.8 0 6.4 2.6 6.4 5.8S15.8 17.8 12 17.8 5.6 15.2 5.6 12 8.2 6.2 12 6.2Z"/><text x="12" y="15.2" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="DM Sans, sans-serif">₦</text><path fill="currentColor" d="M2.5 19.4c6.3 2.3 12.7 2.3 19 0 .5-.2 1 .1 1.2.6.2.5-.1 1.1-.6 1.3-6.7 2.4-13.5 2.4-20.2 0-.5-.2-.8-.8-.6-1.3.2-.5.7-.8 1.2-.6Z"/></svg>
+              Loan
+            </button>
+          </nav>
+
+          <div class="tx-banner" style="margin-top:14px">
+            <div><strong>Transfer Successful</strong><span>₦2,100.00&nbsp;&nbsp;Success</span></div>
+            <span class="tx-when">Today 09:41</span>
+          </div>
+
+          <div class="services" style="margin-top:14px" role="group" aria-label="Services">
+            <button type="button" class="svc" data-soon="Airtime"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#2F7DE1" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>Airtime</button>
+            <button type="button" class="svc" data-soon="Data"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#0E9594" d="M8 3 3.6 8.4h2.7v5.4h3.4V8.4h2.7L8 3Z"/><path fill="#0E9594" d="M16 21l4.4-5.4h-2.7V10.2h-3.4v5.4h-2.7L16 21Z"/></svg>Data</button>
+            <button type="button" class="svc" data-soon="Betting"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#12B76A"/><path fill="#fff" d="M12 8.4l2.9 2.1-1.1 3.4h-3.6L9.1 10.5 12 8.4Z"/><circle cx="12" cy="4.9" r="1.3" fill="#fff"/><circle cx="18.8" cy="9.8" r="1.3" fill="#fff"/><circle cx="16.2" cy="17.7" r="1.3" fill="#fff"/><circle cx="7.8" cy="17.7" r="1.3" fill="#fff"/><circle cx="5.2" cy="9.8" r="1.3" fill="#fff"/></svg>Betting</button>
+            <button type="button" class="svc" data-soon="Electricity"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="#12B76A"/><path fill="#fff" d="M13.3 5.6 7.7 13.4h3.1l-1 5 5.6-7.9h-3.1l1-4.9Z"/></svg>Electricity</button>
+            <button type="button" class="svc" data-soon="Refer &amp; Earn"><svg class="ic-purple" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.5 2.4c.3-.4.9-.4 1.2 0l1.4 2c.3.4.1.9-.4 1-.9.2-1.8.3-2.7.3s-1.8-.1-2.7-.3c-.5-.1-.7-.6-.4-1l1.4-2c.1-.2.4-.4.7-.4s.4.1.5.4Z"/><path fill="currentColor" d="M12 6.6c3.7 0 6.3 2.6 6.3 5.8S15.7 18.2 12 18.2 5.7 15.6 5.7 12.4 8.3 6.6 12 6.6Z"/><text x="12" y="15.6" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff" font-family="DM Sans, sans-serif">₦</text></svg>Refer &amp; Earn</button>
+            <button type="button" class="svc" data-soon="Insurance"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#2F7DE1" d="M12 2.8 19.5 5.6v5.1c0 4.9-3.2 9.2-7.5 10.5C7.7 19.9 4.5 15.6 4.5 10.7V5.6L12 2.8Z"/><path fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M8.9 11.9l2.1 2.1 4.1-4.3"/></svg>Insurance</button>
+            <button type="button" class="svc" data-soon="Cards"><svg class="ic-purple" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13.5" rx="2.5" fill="currentColor"/><rect x="2.5" y="9.2" width="19" height="2.7" fill="#fff" opacity=".9"/><rect x="5.6" y="14.6" width="4.6" height="2.3" rx="1.1" fill="#fff"/></svg>Cards</button>
+            <button type="button" class="svc" data-soon="More services"><svg class="ic-purple" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="3.8" width="7" height="7" rx="2.2" fill="currentColor"/><rect x="13.2" y="3.8" width="7" height="7" rx="2.2" fill="currentColor"/><rect x="3.8" y="13.2" width="7" height="7" rx="2.2" fill="currentColor"/><rect x="13.2" y="13.2" width="7" height="7" rx="2.2" fill="currentColor"/></svg>More</button>
+          </div>
+
+          <div class="promo" style="margin-top:14px">
+            <div class="promo-main">
+              <div class="promo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4"/><path d="M6 14v6.5h12V14M12 10v10.5M12 10s-4 .2-4-1.8C8 6.7 10 6.3 11 7.2c1 .9 1 2.8 1 2.8ZM12 10s4 .2 4-1.8c0-1.5-2-1.9-3-1-1 .9-1 2.8-1 2.8Z"/></svg></div>
+              <div><strong>Up To ₦30 Cashback</strong><span>Earn Cashback Now!</span></div>
+              <button type="button" class="btn-outline" data-soon="Cashback Rewards">GO</button>
+            </div>
+            <div class="promo-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+          </div>
+
+          <div class="promo-grid" style="margin-top:14px">
+            <div class="promo-card">
+              <h4>Target Savings</h4>
+              <p>Save big toward your next goal.</p>
+              <span class="promo-big">₦100,000</span>
+              <span class="promo-small">Savings goal</span>
+              <button type="button" class="btn" data-soon="Target Savings">Claim</button>
+            </div>
+            <div class="promo-card">
+              <h4>Flex Savings</h4>
+              <p>Your available balance, earning for you daily.</p>
+              <span class="promo-big">20.00%</span>
+              <span class="promo-small">Maximum annual yield</span>
+              <button type="button" class="btn" data-soon="Flex Savings">₦1 to Start</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tabPanel" hidden>
+          <h3 id="tabPanelTitle">Loan</h3>
+          <p id="tabPanelText"></p>
+          <div id="meDetails" hidden>
+            <dl class="slip">
+              <div class="slip-row"><dt>NAME</dt><dd id="meName">—</dd></div>
+              <div class="slip-row"><dt>PHONE</dt><dd id="mePhone">—</dd></div>
+              <div class="slip-row"><dt>ACCOUNT REF.</dt><dd id="meRef">—</dd></div>
+              <div class="slip-row"><dt>JOINED</dt><dd id="meDate">—</dd></div>
+            </dl>
+            <button type="button" class="btn btn-secondary" id="dashAnotherBtn" style="width:100%">Create another account</button>
+          </div>
+        </div>
+
+        <nav class="tab-bar" aria-label="Main">
+          <button type="button" class="tab-btn active" data-tab="home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8.5A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5V11Z"/></svg>
+            Home
+          </button>
+          <button type="button" class="tab-btn" data-tab="loan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.6"/></svg>
+            Loan
+          </button>
+          <button type="button" class="tab-btn" data-tab="wealth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 15l3-3 2.5 2L16.2 11"/></svg>
+            Wealth
+          </button>
+          <button type="button" class="tab-btn" data-tab="reward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4"/><path d="M6 14v6.5h12V14M12 10v10.5M12 10s-4 .2-4-1.8C8 6.7 10 6.3 11 7.2c1 .9 1 2.8 1 2.8ZM12 10s4 .2 4-1.8c0-1.5-2-1.9-3-1-1 .9-1 2.8-1 2.8Z"/></svg>
+            Reward
+          </button>
+          <button type="button" class="tab-btn" data-tab="me">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.6 14.3c.9 1.1 2.1 1.7 3.4 1.7s2.5-.6 3.4-1.7M9.2 9.6h.01M14.8 9.6h.01"/></svg>
+            Me
+          </button>
+        </nav>
+      </section>
+
+      <!-- ============ TRANSFER TO BANK: FORM ============ -->
+      <section class="flow-view" id="transferView" hidden aria-label="Transfer to bank">
+        <div class="flow-head">
+          <button type="button" class="flow-back" id="tfBack" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <h2>Transfer to Bank</h2>
+        </div>
+        <div class="flow-card">
+          <form id="transferForm" novalidate>
+            <div class="form-error" id="tfFormError" role="alert"></div>
+
+            <div class="field" id="field-tf-acct">
+              <label for="tfAcct">Account number</label>
+              <div class="input-wrap">
+                <input id="tfAcct" type="text" inputmode="numeric" autocomplete="off" placeholder="10-digit account number" />
+              </div>
+              <p class="hint">The recipient's 10-digit bank account number.</p>
+              <p class="error-text"></p>
+            </div>
+
+            <div class="field" id="field-tf-bank">
+              <label for="tfBank">Bank</label>
+              <div class="select-wrap"><select id="tfBank" aria-label="Recipient bank"></select></div>
+              <p class="error-text"></p>
+            </div>
+
+            <div class="field" id="field-tf-name">
+              <label for="tfName">Account name</label>
+              <div class="input-wrap">
+                <input id="tfName" type="text" autocomplete="off" placeholder="Name on the recipient's account" autocapitalize="words" />
+              </div>
+              <p class="hint">This name appears on the transfer receipt.</p>
+              <p class="error-text"></p>
+            </div>
+
+            <div class="field" id="field-tf-amount">
+              <label for="tfAmount">Amount (₦)</label>
+              <div class="input-wrap">
+                <input id="tfAmount" type="number" min="1" step="any" inputmode="decimal" placeholder="e.g. 2,100" />
+              </div>
+              <p class="hint" id="tfBalanceHint"></p>
+              <p class="error-text"></p>
+            </div>
+
+            <button type="submit" class="btn">Continue</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ============ TRANSFER TO BANK: CONFIRM ============ -->
+      <section class="flow-view" id="confirmView" hidden aria-label="Confirm transfer">
+        <div class="flow-head">
+          <button type="button" class="flow-back" id="cfBack" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <h2>Confirm Transfer</h2>
+        </div>
+        <div class="flow-card">
+          <div class="bank-badge sm" id="cfBadge" aria-hidden="true">B</div>
+          <div class="detail-row"><span class="d-label">Recipient</span><span class="d-value" id="cfName">—</span></div>
+          <div class="detail-row"><span class="d-label">Bank</span><span class="d-value" id="cfBank">—</span></div>
+          <div class="detail-row"><span class="d-label">Account Number</span><span class="d-value mono" id="cfAcct">—</span></div>
+          <div class="detail-row"><span class="d-label">Amount</span><span class="d-value" id="cfAmount">—</span></div>
+          <div class="detail-row"><span class="d-label">Fee</span><span class="d-value"><span class="strike">₦10.00</span><span class="waived">Waived</span></span></div>
+          <div class="detail-row"><span class="d-label">Total to Pay</span><span class="d-value" id="cfTotal">—</span></div>
+          <p class="note-box left" id="cfAfter" style="margin-top:10px"></p>
+          <button type="button" class="btn" id="cfConfirm">Confirm Transfer</button>
+          <button type="button" class="btn btn-secondary" id="cfCancel" style="width:100%">Cancel</button>
+        </div>
+      </section>
+
+      <!-- ============ SENT TRANSFER RECEIPT ============ -->
+      <section class="flow-view" id="receiptView" hidden aria-label="Transaction detail">
+        <div class="flow-head">
+          <button type="button" class="flow-back" id="rcBack" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <h2>Transaction detail</h2>
+          <button type="button" class="icon-btn" id="rcSupport" aria-label="Support">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg>
+          </button>
+        </div>
+
+        <div class="flow-card">
+          <div class="bank-badge" id="rcBadge" aria-hidden="true">B</div>
+          <p class="rc-title" id="rcTitle">To Bank Transfer-</p>
+          <p class="rc-amount" id="rcAmount">₦0.00</p>
+          <p class="rc-status">
+            <span class="ok-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg></span>
+            Successful <span class="rc-chev" aria-hidden="true">›</span>
+          </p>
+          <div class="timeline">
+            <div class="tl-step">
+              <span class="tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg></span>
+              <span class="tl-label">Payment successful</span>
+              <span class="tl-time" id="rcT1"></span>
+            </div>
+            <div class="tl-step">
+              <span class="tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg></span>
+              <span class="tl-label">Submitted to bank</span>
+              <span class="tl-time" id="rcT2"></span>
+            </div>
+            <div class="tl-step">
+              <span class="tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg></span>
+              <span class="tl-label">Received by bank</span>
+              <span class="tl-time" id="rcT3"></span>
+            </div>
+          </div>
+          <p class="note-box">The transfer has been successfully paid and submitted to the recipient bank. Kindly note the actual credited time is subject to the bank.</p>
+          <div class="detail-row"><span class="d-label">Transfer Amount</span><span class="d-value" id="rcTransferAmt"></span></div>
+          <div class="detail-row"><span class="d-label">Fee</span><span class="d-value strike" id="rcFee"></span></div>
+          <div class="detail-row"><span class="d-label">Payment Amount</span><span class="d-value" id="rcPayAmt"></span></div>
+        </div>
+
+        <div class="flow-card">
+          <div class="detail-row">
+            <span class="d-label">Recipient</span>
+            <span class="d-value"><span id="rcRecipientMain"></span><span class="d-sub" id="rcRecipientSub"></span></span>
+          </div>
+          <div class="detail-row">
+            <span class="d-label">Session ID</span>
+            <span class="d-value mono break"><span id="rcSession"></span><button type="button" class="copy-btn" data-copy="rcSession" aria-label="Copy session ID"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></span>
+          </div>
+          <p class="note-box left">If the recipient account is not credited within 5 minutes, please use the Session ID to <span class="note-link">contact the recipient bank.</span></p>
+          <div class="detail-row"><span class="d-label">Completion Time</span><span class="d-value" id="rcCompletion"></span></div>
+          <div class="detail-row">
+            <span class="d-label">Transaction ID</span>
+            <span class="d-value mono"><span id="rcTxId"></span><button type="button" class="copy-btn" data-copy="rcTxId" aria-label="Copy transaction ID"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></span>
+          </div>
+          <div class="detail-row"><span class="d-label">Application</span><span class="d-value">PP</span></div>
+          <div class="detail-row"><span class="d-label">Payment Type</span><span class="d-value">Money Transfer - Bank account</span></div>
+        </div>
+
+        <div class="receipt-actions">
+          <button type="button" id="rcView">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.8h8L19 8v13.2H6z"/><path d="M13.5 3v5.5H19M9.5 13h5M9.5 16.8h5"/></svg>
+            View Receipt
+          </button>
+          <button type="button" id="rcDispute">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 9.2h7M8.5 12.5h7M8.5 15.8h4"/></svg>
+            Report a Dispute
+          </button>
+        </div>
+        <p class="dispute-note" id="rcDisputeNote" hidden>Your dispute has been logged and our team will review this transaction. Keep your Session ID handy for any follow-up.</p>
+      </section>
+
+      <!-- ============ RECEIVED MONEY RECEIPT ============ -->
+      <section class="flow-view" id="receivedView" hidden aria-label="Transaction details">
+        <div class="flow-head">
+          <button type="button" class="flow-back" id="rvBack" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <h2>Transaction Details</h2>
+        </div>
+
+        <div class="flow-card">
+          <div class="bank-badge grad" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 12 4l8.5 5.5"/><path d="M5 9.8V18M9.7 9.8V18M14.3 9.8V18M19 9.8V18M3.5 20.5h17"/></svg>
+          </div>
+          <p class="rc-title" id="rvTitle">Received From</p>
+          <p class="rc-amount" id="rvAmount">+₦0.00</p>
+          <p class="rc-status">
+            <span class="ok-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg></span>
+            Successful
+          </p>
+        </div>
+
+        <div class="flow-card">
+          <div class="detail-row">
+            <span class="d-label">Sender</span>
+            <span class="d-value"><span id="rvSenderName"></span><span class="d-sub" id="rvSenderSub"></span></span>
+          </div>
+          <div class="detail-row"><span class="d-label">Remark</span><span class="d-value break" style="max-width:68%" id="rvRemark"></span></div>
+          <div class="detail-row"><span class="d-label">Transaction Type</span><span class="d-value">Bank Deposit</span></div>
+          <div class="detail-row"><span class="d-label">Credited To</span><span class="d-value">Balance <span class="rc-chev" aria-hidden="true">›</span></span></div>
+          <div class="detail-row"><span class="d-label">Completion Time</span><span class="d-value" id="rvCompletion"></span></div>
+          <div class="detail-row">
+            <span class="d-label">Transaction ID</span>
+            <span class="d-value mono"><span id="rvTxId"></span><button type="button" class="copy-btn" data-copy="rvTxId" aria-label="Copy transaction ID"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></span>
+          </div>
+          <div class="detail-row">
+            <span class="d-label">Session ID</span>
+            <span class="d-value mono break"><span id="rvSession"></span><button type="button" class="copy-btn" data-copy="rvSession" aria-label="Copy session ID"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></span>
+          </div>
+        </div>
+
+        <div class="flow-card promo-flex">
+          <div class="promo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18.5a2.3 2.3 0 0 0 5 0M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.2 1.1 2.2h5c0-1 .4-1.7 1.1-2.2A6 6 0 0 0 12 3Z"/></svg>
+          </div>
+          <div><strong>Make This Deposit Grow</strong><span>Earn up to 20% p.a., paid daily, with Flex Savings.</span></div>
+          <button type="button" class="btn go-btn" id="rvGo">Go</button>
+        </div>
+
+        <div class="flow-card">
+          <p class="svc-q">Any Questions about this transaction?</p>
+          <button type="button" class="svc-link" id="rvService">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="2"/><rect x="17.5" y="14" width="4" height="6" rx="2"/></svg>
+            Customer Service
+          </button>
+        </div>
+      </section>
+
+      <!-- ============ RECEIPT SLIP MODAL ============ -->
+      <div class="modal" id="slipModal" hidden role="dialog" aria-modal="true" aria-label="Transfer receipt">
+        <div class="modal-card">
+          <div class="head" style="padding:0">
+            <div class="mark" aria-hidden="true"><span style="font-weight:700;font-size:13.5px;letter-spacing:.03em">PP</span></div>
+            <div class="brand-mono">PP</div>
+            <h2 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:19px;margin:6px 0 0">Transfer receipt</h2>
+          </div>
+          <dl class="slip">
+            <div class="slip-row"><dt>RECIPIENT</dt><dd id="slName">—</dd></div>
+            <div class="slip-row"><dt>BANK</dt><dd id="slBank">—</dd></div>
+            <div class="slip-row"><dt>ACCOUNT</dt><dd id="slAcct">—</dd></div>
+            <div class="slip-row"><dt>AMOUNT</dt><dd id="slAmount">—</dd></div>
+            <div class="slip-row"><dt>FEE</dt><dd>₦10.00 · WAIVED</dd></div>
+            <div class="slip-row"><dt>STATUS</dt><dd>SUCCESSFUL</dd></div>
+            <div class="slip-row"><dt>SESSION ID</dt><dd id="slSession">—</dd></div>
+            <div class="slip-row"><dt>TRANSACTION ID</dt><dd id="slTx">—</dd></div>
+            <div class="slip-row"><dt>DATE</dt><dd id="slDate">—</dd></div>
+            <div class="slip-row"><dt>APPLICATION</dt><dd>PP</dd></div>
+          </dl>
+          <div class="barcode" aria-hidden="true"></div>
+          <div class="barcode-num" id="slBarcodeNum"></div>
+          <button type="button" class="btn" id="slipClose">Done</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status"></div>
+
+      <p class="below" id="belowLine">PP &nbsp;·&nbsp; MONEY, MADE SIMPLE</p>
+    </main>
+
+    <script>
+      (function(){
+        var form = document.getElementById('signupForm');
+        var nameInput = document.getElementById('name');
+        var phoneInput = document.getElementById('phone');
+        var countryCode = document.getElementById('countryCode');
+        var pwInput = document.getElementById('password');
+        var formError = document.getElementById('formError');
+        var submitBtn = document.getElementById('submitBtn');
+        var submitLabel = document.getElementById('submitLabel');
+        var toggle = document.getElementById('togglePw');
+        var eyeIcon = document.getElementById('eyeIcon');
+        var eyeOffIcon = document.getElementById('eyeOffIcon');
+        var strength = document.getElementById('strength');
+        var strengthBar = document.getElementById('strengthBar');
+        var strengthText = document.getElementById('strengthText');
+
+        /* ---- show / hide password ---- */
+        toggle.addEventListener('click', function(){
+          var show = pwInput.type === 'password';
+          pwInput.type = show ? 'text' : 'password';
+          eyeIcon.style.display = show ? 'none' : '';
+          eyeOffIcon.style.display = show ? '' : 'none';
+          toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+          toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+          pwInput.focus();
+        });
+
+        /* ---- validation helpers ---- */
+        function setError(fieldId, input, msg){
+          var field = document.getElementById(fieldId);
+          var err = field.querySelector('.error-text');
+          if(msg){
+            field.classList.add('has-error');
+            err.textContent = msg;
+            input.setAttribute('aria-invalid','true');
+          } else {
+            field.classList.remove('has-error');
+            err.textContent = '';
+            input.removeAttribute('aria-invalid');
+          }
+          return !msg;
+        }
+        function validateName(){
+          var v = nameInput.value.trim();
+          if(!v) return setError('field-name', nameInput, 'Please enter your name.');
+          if(v.length < 2) return setError('field-name', nameInput, 'That name looks too short — please enter your full name.');
+          if(!/[A-Za-zÀ-ÖØ-öø-ÿ'’-]/.test(v)) return setError('field-name', nameInput, 'Please enter a valid name.');
+          return setError('field-name', nameInput, '');
+        }
+        function normalizedPhone(){
+          var code = countryCode.value.replace(/\D/g,'');
+          var raw = phoneInput.value.trim().replace(/[\s\-().]/g,'');
+          /* If the number itself starts with + or 00, treat it as a full
+             international number and ignore the dropdown code. */
+          if(raw.charAt(0) === '+'){
+            return { full: raw, digits: raw.replace(/\D/g,'') };
+          }
+          if(raw.indexOf('00') === 0){
+            var intl = '+' + raw.slice(2);
+            return { full: intl, digits: intl.replace(/\D/g,'') };
+          }
+          var national = raw.replace(/^0+/, '');
+          return { full: '+' + code + national, digits: code + national, national: national };
+        }
+        function validatePhone(){
+          var raw = phoneInput.value.trim();
+          if(!raw) return setError('field-phone', phoneInput, 'Please enter your phone number.');
+          if(/[^0-9\s\-()+.]/.test(raw)) return setError('field-phone', phoneInput, 'Phone numbers can only contain digits, spaces, and a leading +.');
+          var p = normalizedPhone();
+          if(!p.national && p.digits.length < 7) return setError('field-phone', phoneInput, 'That phone number looks too short — check it and try again.');
+          if(p.national !== undefined && p.national.length < 6) return setError('field-phone', phoneInput, 'That phone number looks too short — check it and try again.');
+          if(p.digits.length < 7 || p.digits.length > 15) return setError('field-phone', phoneInput, 'That phone number doesn\u2019t look right — it should be 7 to 15 digits including the country code.');
+          return setError('field-phone', phoneInput, '');
+        }
+        function formatPhone(){
+          var p = normalizedPhone();
+          if(p.national){
+            var n = p.national;
+            var grouped = n.length > 6 ? n.slice(0,3) + ' ' + n.slice(3,6) + ' ' + n.slice(6) : n;
+            return '+' + p.digits.slice(0, p.digits.length - n.length) + ' ' + grouped;
+          }
+          return p.full;
+        }
+        function validatePassword(){
+          var v = pwInput.value;
+          if(!v) return setError('field-password', pwInput, 'Please create a password.');
+          if(v.length < 8) return setError('field-password', pwInput, 'Use at least 8 characters.');
+          if(!/[A-Za-z]/.test(v) || !/[0-9]/.test(v)) return setError('field-password', pwInput, 'Include at least one letter and one number.');
+          return setError('field-password', pwInput, '');
+        }
+
+        nameInput.addEventListener('blur', validateName);
+        phoneInput.addEventListener('blur', validatePhone);
+        countryCode.addEventListener('change', function(){
+          var field = document.getElementById('field-phone');
+          if(field.classList.contains('has-error')) validatePhone();
+        });
+        pwInput.addEventListener('blur', validatePassword);
+        [nameInput, phoneInput, pwInput].forEach(function(inp){
+          inp.addEventListener('input', function(){
+            formError.classList.remove('show'); formError.textContent = '';
+            var field = inp.closest('.field');
+            if(field.classList.contains('has-error')){
+              if(inp === nameInput) validateName();
+              if(inp === phoneInput) validatePhone();
+              if(inp === pwInput) validatePassword();
+            }
+          });
+        });
+
+        /* ---- password strength ---- */
+        function scorePassword(v){
+          var s = 0;
+          if(v.length >= 8) s++;
+          if(v.length >= 12) s++;
+          if(/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+          if(/[0-9]/.test(v)) s++;
+          if(/[^A-Za-z0-9]/.test(v)) s++;
+          return s; /* 0..5 */
+        }
+        pwInput.addEventListener('input', function(){
+          var v = pwInput.value;
+          if(!v){ strength.classList.remove('show'); return; }
+          strength.classList.add('show');
+          var s = scorePassword(v);
+          var pct = Math.max(12, s * 20);
+          var label, color;
+          if(s <= 1){ label = 'Weak'; color = 'var(--error)'; }
+          else if(s === 2){ label = 'Fair'; color = 'var(--amber)'; }
+          else if(s === 3){ label = 'Good'; color = 'var(--amber)'; }
+          else if(s === 4){ label = 'Strong'; color = 'var(--accent)'; }
+          else { label = 'Excellent'; color = 'var(--accent)'; }
+          strengthBar.style.width = pct + '%';
+          strengthBar.style.background = color;
+          strengthText.textContent = label;
+        });
+
+        /* ============ SIGN IN ============ */
+        var sessionAccount = null; /* set on sign-up; reused to greet by name on sign-in */
+        var signupView = document.getElementById('signupView');
+        var signinView = document.getElementById('signinView');
+        var siForm = document.getElementById('signinForm');
+        var siPhoneInput = document.getElementById('siPhone');
+        var siCountryCode = document.getElementById('siCountryCode');
+        var siPwInput = document.getElementById('siPassword');
+        var siFormError = document.getElementById('siFormError');
+        var siSubmitBtn = document.getElementById('siSubmitBtn');
+        var siSubmitLabel = document.getElementById('siSubmitLabel');
+
+        /* mirror the sign-up country list */
+        for(var ci = 0; ci < countryCode.options.length; ci++){
+          siCountryCode.appendChild(new Option(countryCode.options[ci].text, countryCode.options[ci].value));
+        }
+        siCountryCode.value = countryCode.value;
+
+        function showSignin(){
+          signupView.hidden = true;
+          signinView.hidden = false;
+          window.scrollTo({top:0, behavior:'smooth'});
+          siPhoneInput.focus();
+        }
+        function showSignup(){
+          signinView.hidden = true;
+          signupView.hidden = false;
+          window.scrollTo({top:0, behavior:'smooth'});
+          nameInput.focus();
+        }
+        document.getElementById('signinLink').addEventListener('click', function(e){
+          e.preventDefault();
+          showSignin();
+        });
+        document.getElementById('createAccountLink').addEventListener('click', function(e){
+          e.preventDefault();
+          showSignup();
+        });
+
+        /* sign-in password show / hide */
+        var toggleSiPw = document.getElementById('toggleSiPw');
+        var siEyeIcon = document.getElementById('siEyeIcon');
+        var siEyeOffIcon = document.getElementById('siEyeOffIcon');
+        toggleSiPw.addEventListener('click', function(){
+          var show = siPwInput.type === 'password';
+          siPwInput.type = show ? 'text' : 'password';
+          siEyeIcon.style.display = show ? 'none' : '';
+          siEyeOffIcon.style.display = show ? '' : 'none';
+          toggleSiPw.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+          toggleSiPw.setAttribute('aria-pressed', show ? 'true' : 'false');
+          siPwInput.focus();
+        });
+
+        function siNormalizedPhone(){
+          var code = siCountryCode.value.replace(/\D/g,'');
+          var raw = siPhoneInput.value.trim().replace(/[\s\-().]/g,'');
+          if(raw.charAt(0) === '+'){
+            return { full: raw, digits: raw.replace(/\D/g,'') };
+          }
+          if(raw.indexOf('00') === 0){
+            var intl = '+' + raw.slice(2);
+            return { full: intl, digits: intl.replace(/\D/g,'') };
+          }
+          var national = raw.replace(/^0+/, '');
+          return { full: '+' + code + national, digits: code + national, national: national };
+        }
+        function siFormatPhone(){
+          var p = siNormalizedPhone();
+          if(p.national){
+            var n = p.national;
+            var grouped = n.length > 6 ? n.slice(0,3) + ' ' + n.slice(3,6) + ' ' + n.slice(6) : n;
+            return '+' + p.digits.slice(0, p.digits.length - n.length) + ' ' + grouped;
+          }
+          return p.full;
+        }
+        function validateSiPhone(){
+          var raw = siPhoneInput.value.trim();
+          if(!raw) return setError('field-si-phone', siPhoneInput, 'Please enter your phone number.');
+          if(/[^0-9\s\-()+.]/.test(raw)) return setError('field-si-phone', siPhoneInput, 'Phone numbers can only contain digits, spaces, and a leading +.');
+          var p = siNormalizedPhone();
+          if(p.national !== undefined && p.national.length < 6) return setError('field-si-phone', siPhoneInput, 'That phone number looks too short — check it and try again.');
+          if(p.digits.length < 7 || p.digits.length > 15) return setError('field-si-phone', siPhoneInput, 'That phone number doesn\u2019t look right — it should be 7 to 15 digits including the country code.');
+          return setError('field-si-phone', siPhoneInput, '');
+        }
+        function validateSiPassword(){
+          if(!siPwInput.value) return setError('field-si-password', siPwInput, 'Please enter your password.');
+          return setError('field-si-password', siPwInput, '');
+        }
+        siPhoneInput.addEventListener('blur', validateSiPhone);
+        siPwInput.addEventListener('blur', validateSiPassword);
+        siCountryCode.addEventListener('change', function(){
+          if(document.getElementById('field-si-phone').classList.contains('has-error')) validateSiPhone();
+        });
+        [siPhoneInput, siPwInput].forEach(function(inp){
+          inp.addEventListener('input', function(){
+            siFormError.classList.remove('show'); siFormError.textContent = '';
+            var field = inp.closest('.field');
+            if(field.classList.contains('has-error')){
+              if(inp === siPhoneInput) validateSiPhone();
+              if(inp === siPwInput) validateSiPassword();
+            }
+          });
+        });
+
+        siForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          var okPhone = validateSiPhone();
+          var okPw = validateSiPassword();
+          if(!okPhone || !okPw){
+            siFormError.textContent = 'A couple of details need fixing — check the highlighted fields.';
+            siFormError.classList.add('show');
+            var firstBad = siForm.querySelector('input[aria-invalid="true"]');
+            if(firstBad) firstBad.focus();
+            return;
+          }
+          siSubmitBtn.disabled = true;
+          siSubmitBtn.classList.add('loading');
+          siSubmitLabel.textContent = 'Signing in\u2026';
+          var phone = siFormatPhone();
+          /* Simulated sign-in (static page — no server call). If an account was
+             created earlier in this session with the same number, greet by name. */
+          setTimeout(function(){
+            var now = new Date();
+            var receiptNo = 'PP-' + String(Math.floor(100000 + Math.random()*900000));
+            var dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) + ' · ' +
+                          now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+            var name = (sessionAccount && sessionAccount.phone === phone) ? sessionAccount.name : 'Friend';
+            siSubmitBtn.disabled = false;
+            siSubmitBtn.classList.remove('loading');
+            siSubmitLabel.textContent = 'Sign in';
+            showDashboard(name, phone, receiptNo, dateStr, 'Signed in — welcome back to PP.');
+          }, 700);
+        });
+
+        /* ---- submit ---- */
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          var okName = validateName();
+          var okPhone = validatePhone();
+          var okPw = validatePassword();
+          if(!okName || !okPhone || !okPw){
+            formError.textContent = 'A couple of details need fixing — check the highlighted fields.';
+            formError.classList.add('show');
+            var firstBad = document.querySelector('input[aria-invalid="true"]');
+            if(firstBad) firstBad.focus();
+            return;
+          }
+          submitBtn.disabled = true;
+          submitBtn.classList.add('loading');
+          submitLabel.textContent = 'Creating account\u2026';
+
+          var name = nameInput.value.trim().replace(/\s+/g,' ');
+          var phone = formatPhone();
+
+          /* Simulated account creation (static page — no server call).
+             Brief pause so the action feels deliberate, then open the dashboard. */
+          setTimeout(function(){
+            var now = new Date();
+            var receiptNo = 'PP-' + String(Math.floor(100000 + Math.random()*900000));
+            var dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) + ' · ' +
+                          now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+            sessionAccount = { name: name, phone: phone };
+            showDashboard(name, phone, receiptNo, dateStr);
+          }, 700);
+        });
+
+        /* ============ DASHBOARD ============ */
+        var balance = 1250.00;
+        var balanceVisible = true;
+        var balAmount = document.getElementById('balAmount');
+        var dashStatus = document.getElementById('dashStatus');
+
+        function fmtNaira(n){
+          return '\u20A6' + n.toLocaleString('en-NG', { minimumFractionDigits:2, maximumFractionDigits:2 });
+        }
+        function renderBalance(){
+          balAmount.textContent = balanceVisible ? fmtNaira(balance) : '\u20A6 \u2022\u2022\u2022\u2022\u2022\u2022';
+        }
+        function showStatus(msg){
+          dashStatus.textContent = msg;
+          dashStatus.classList.add('show');
+        }
+        function showDashboard(name, phone, ref, dateStr, bannerText){
+          var first = name.split(' ')[0];
+          document.getElementById('dashName').textContent = first;
+          document.getElementById('dashPhone').textContent = phone;
+          var initials = name.split(' ').filter(Boolean).slice(0,2).map(function(w){ return w.charAt(0).toUpperCase(); }).join('');
+          document.getElementById('dashAvatar').textContent = initials || 'P';
+          currentUserName = name;
+          document.getElementById('meName').textContent = name;
+          document.getElementById('mePhone').textContent = phone;
+          document.getElementById('meRef').textContent = ref;
+          document.getElementById('meDate').textContent = dateStr;
+          document.getElementById('receiptWrap').style.display = 'none';
+          document.getElementById('belowLine').style.display = 'none';
+          document.querySelector('.page').classList.add('dash-mode');
+          document.body.classList.add('dash-on');
+          var dv = document.getElementById('dashboardView');
+          dv.hidden = false;
+          var banner = document.getElementById('dashBanner');
+          banner.style.display = '';
+          banner.querySelector('span').textContent = bannerText || 'Account created — welcome to PP.';
+          renderBalance();
+          window.scrollTo({top:0, behavior:'smooth'});
+          document.getElementById('addMoneyBtn').focus();
+        }
+
+        document.getElementById('bannerClose').addEventListener('click', function(){
+          document.getElementById('dashBanner').style.display = 'none';
+        });
+
+        /* balance eye toggle */
+        var balToggle = document.getElementById('balToggle');
+        balToggle.addEventListener('click', function(){
+          balanceVisible = !balanceVisible;
+          renderBalance();
+          balToggle.setAttribute('aria-label', balanceVisible ? 'Hide balance' : 'Show balance');
+          balToggle.setAttribute('aria-pressed', balanceVisible ? 'false' : 'true');
+        });
+
+        /* transaction history toggle */
+        var historyBtn = document.getElementById('historyBtn');
+        var historyPanel = document.getElementById('historyPanel');
+        historyBtn.addEventListener('click', function(){
+          var open = historyPanel.hidden;
+          historyPanel.hidden = !open;
+          historyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+
+        /* add money */
+        var addMoneyBtn = document.getElementById('addMoneyBtn');
+        var addPanel = document.getElementById('addPanel');
+        var addAmount = document.getElementById('addAmount');
+        var addNote = document.getElementById('addNote');
+        addMoneyBtn.addEventListener('click', function(){
+          var open = addPanel.hidden;
+          addPanel.hidden = !open;
+          addMoneyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if(open) addAmount.focus();
+        });
+        /* ============ TRANSFERS, RECEIPTS & HISTORY ============ */
+        var BANKS = ['Access Bank','Ecobank Nigeria','Fidelity Bank','First Bank of Nigeria','First City Monument Bank','Globus Bank','Guaranty Trust Bank','Heritage Bank','Jaiz Bank','Keystone Bank','Kuda Bank','Moniepoint','OPay','PalmPay','Polaris Bank','Providus Bank','Stanbic IBTC Bank','Standard Chartered Bank','Sterling Bank','Union Bank of Nigeria','United Bank for Africa','Unity Bank','Wema Bank','Zenith Bank'];
+        var currentUserName = '';
+        var dashboardView = document.getElementById('dashboardView');
+        var transferView = document.getElementById('transferView');
+        var confirmView = document.getElementById('confirmView');
+        var receiptView = document.getElementById('receiptView');
+        var receivedView = document.getElementById('receivedView');
+        var flowViews = [transferView, confirmView, receiptView, receivedView];
+
+        function showFlow(view){
+          dashboardView.hidden = true;
+          flowViews.forEach(function(v){ v.hidden = v !== view; });
+          window.scrollTo({top:0, behavior:'smooth'});
+        }
+        function backToDash(){
+          flowViews.forEach(function(v){ v.hidden = true; });
+          dashboardView.hidden = false;
+          window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        /* toast */
+        var toast = document.getElementById('toast');
+        var toastTimer = null;
+        function showToast(msg){
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2200);
+        }
+
+        /* time + id helpers */
+        function pad2(n){ return (n < 10 ? '0' : '') + n; }
+        function time12(d){ var h = d.getHours(); var ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return pad2(h) + ':' + pad2(d.getMinutes()) + ' ' + ap; }
+        function timelineStamp(d){ return pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + time12(d); }
+        function completionStamp(d){
+          var mon = d.toLocaleDateString('en-US', { month:'short' });
+          return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ',' + mon + ' ' + pad2(d.getDate()) + ',' + d.getFullYear();
+        }
+        function genSessionId(prefix, len){
+          var s = prefix;
+          while(s.length < len) s += Math.floor(Math.random() * 10);
+          return s;
+        }
+        function genTxId(){
+          var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+          var s = String(Math.floor(Math.random() * 10));
+          for(var i = 0; i < 11; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+          return s;
+        }
+        function randomAcct(){
+          var s = '';
+          for(var i = 0; i < 10; i++) s += Math.floor(Math.random() * 10);
+          return s;
+        }
+
+        /* bank dropdowns (transfer form + add-money sender bank) */
+        var tfBank = document.getElementById('tfBank');
+        var addBankSel = document.getElementById('addBank');
+        tfBank.appendChild(new Option('Select bank', ''));
+        addBankSel.appendChild(new Option('Sender bank (optional)', ''));
+        BANKS.forEach(function(b){
+          tfBank.appendChild(new Option(b, b));
+          addBankSel.appendChild(new Option(b, b));
+        });
+
+        /* ---- transaction history: entries reopen their receipt ---- */
+        var txRecords = {};
+        var txSeq = 0;
+        function addHistoryEntry(rec){
+          txSeq += 1;
+          var id = 'tx-' + txSeq;
+          txRecords[id] = rec;
+          var li = document.createElement('li');
+          li.className = 'clickable';
+          li.setAttribute('role', 'button');
+          li.setAttribute('tabindex', '0');
+          li.setAttribute('aria-label', 'View receipt for this transaction');
+          var left = document.createElement('div');
+          var strong = document.createElement('strong');
+          strong.textContent = rec.kind === 'sent' ? 'Transfer to ' + rec.name : 'Received from ' + rec.sender;
+          var when = document.createElement('span');
+          when.className = 'tx-when';
+          when.textContent = rec.whenLabel;
+          left.appendChild(strong); left.appendChild(when);
+          var right = document.createElement('span');
+          right.style.display = 'inline-flex'; right.style.alignItems = 'center'; right.style.gap = '5px';
+          var amtEl = document.createElement('span');
+          amtEl.className = 'tx-amt' + (rec.kind === 'received' ? ' credit' : '');
+          amtEl.textContent = (rec.kind === 'received' ? '+' : '\u2212') + fmtNaira(rec.amount);
+          var chev = document.createElement('span');
+          chev.className = 'tx-chev'; chev.setAttribute('aria-hidden', 'true'); chev.textContent = '\u203A';
+          right.appendChild(amtEl); right.appendChild(chev);
+          li.appendChild(left); li.appendChild(right);
+          function open(){ openReceipt(id); }
+          li.addEventListener('click', open);
+          li.addEventListener('keydown', function(e){
+            if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
+          });
+          var list = document.getElementById('txList');
+          list.insertBefore(li, list.firstChild);
+        }
+        function openReceipt(id){
+          var rec = txRecords[id];
+          if(!rec) return;
+          if(rec.kind === 'sent'){ fillSentReceipt(rec); showFlow(receiptView); }
+          else { fillReceivedReceipt(rec); showFlow(receivedView); }
+        }
+
+        /* ---- transfer form ---- */
+        var tfAcct = document.getElementById('tfAcct');
+        var tfName = document.getElementById('tfName');
+        var tfAmount = document.getElementById('tfAmount');
+        var tfFormError = document.getElementById('tfFormError');
+        var pendingTransfer = null;
+        var currentSent = null;
+
+        document.getElementById('toBankBtn').addEventListener('click', function(){
+          document.getElementById('tfBalanceHint').textContent = 'Available balance: ' + fmtNaira(balance);
+          showFlow(transferView);
+          tfAcct.focus();
+        });
+        document.getElementById('tfBack').addEventListener('click', backToDash);
+        tfAcct.addEventListener('input', function(){
+          tfAcct.value = tfAcct.value.replace(/\D/g, '').slice(0, 10);
+        });
+        function validateTfAcct(){
+          var v = tfAcct.value.trim();
+          if(!v) return setError('field-tf-acct', tfAcct, 'Please enter the account number.');
+          if(!/^\d{10}$/.test(v)) return setError('field-tf-acct', tfAcct, 'Account number must be exactly 10 digits.');
+          return setError('field-tf-acct', tfAcct, '');
+        }
+        function validateTfBank(){
+          if(!tfBank.value) return setError('field-tf-bank', tfBank, 'Please select the recipient\u2019s bank.');
+          return setError('field-tf-bank', tfBank, '');
+        }
+        function validateTfName(){
+          var v = tfName.value.trim();
+          if(!v) return setError('field-tf-name', tfName, 'Please enter the account name.');
+          if(v.length < 2) return setError('field-tf-name', tfName, 'That name looks too short \u2014 please enter the full account name.');
+          return setError('field-tf-name', tfName, '');
+        }
+        function validateTfAmount(){
+          var v = parseFloat(tfAmount.value);
+          if(!tfAmount.value || isNaN(v)) return setError('field-tf-amount', tfAmount, 'Please enter an amount.');
+          if(v <= 0) return setError('field-tf-amount', tfAmount, 'Amount must be greater than zero.');
+          if(v > balance) return setError('field-tf-amount', tfAmount, 'Insufficient balance \u2014 you have ' + fmtNaira(balance) + ' available.');
+          return setError('field-tf-amount', tfAmount, '');
+        }
+        tfAcct.addEventListener('blur', validateTfAcct);
+        tfBank.addEventListener('change', validateTfBank);
+        tfName.addEventListener('blur', validateTfName);
+        tfAmount.addEventListener('blur', validateTfAmount);
+
+        document.getElementById('transferForm').addEventListener('submit', function(e){
+          e.preventDefault();
+          var a = validateTfAcct(), b = validateTfBank(), c = validateTfName(), d = validateTfAmount();
+          if(!(a && b && c && d)){
+            tfFormError.textContent = 'A couple of details need fixing \u2014 check the highlighted fields.';
+            tfFormError.classList.add('show');
+            var bad = transferView.querySelector('[aria-invalid="true"]');
+            if(bad) bad.focus();
+            return;
+          }
+          tfFormError.classList.remove('show');
+          tfFormError.textContent = '';
+          pendingTransfer = {
+            acct: tfAcct.value.trim(),
+            bank: tfBank.value,
+            name: tfName.value.trim().replace(/\s+/g, ' '),
+            amount: parseFloat(tfAmount.value)
+          };
+          document.getElementById('cfBadge').textContent = pendingTransfer.bank.charAt(0).toUpperCase();
+          document.getElementById('cfName').textContent = pendingTransfer.name;
+          document.getElementById('cfBank').textContent = pendingTransfer.bank;
+          document.getElementById('cfAcct').textContent = pendingTransfer.acct;
+          document.getElementById('cfAmount').textContent = fmtNaira(pendingTransfer.amount);
+          document.getElementById('cfTotal').textContent = fmtNaira(pendingTransfer.amount);
+          document.getElementById('cfAfter').textContent = 'Balance after this transfer: ' + fmtNaira(balance - pendingTransfer.amount) + '. The \u20A610.00 fee is waived, so only the transfer amount leaves your account.';
+          showFlow(confirmView);
+        });
+
+        /* ---- confirm step: deduct, record, show receipt ---- */
+        document.getElementById('cfBack').addEventListener('click', function(){ showFlow(transferView); });
+        document.getElementById('cfCancel').addEventListener('click', backToDash);
+        document.getElementById('cfConfirm').addEventListener('click', function(){
+          if(!pendingTransfer) return;
+          if(pendingTransfer.amount > balance){
+            showToast('Insufficient balance for this transfer.');
+            showFlow(transferView);
+            return;
+          }
+          balance -= pendingTransfer.amount;
+          balanceVisible = true;
+          renderBalance();
+          var now = new Date();
+          var rec = {
+            kind: 'sent',
+            name: pendingTransfer.name,
+            bank: pendingTransfer.bank,
+            acct: pendingTransfer.acct,
+            amount: pendingTransfer.amount,
+            fee: 10,
+            stamp: now,
+            whenLabel: 'Today \u00B7 ' + time12(now),
+            txId: genTxId(),
+            session: genSessionId('1000', 34)
+          };
+          addHistoryEntry(rec);
+          fillSentReceipt(rec);
+          pendingTransfer = null;
+          document.getElementById('transferForm').reset();
+          showFlow(receiptView);
+        });
+
+        /* ---- sent receipt ---- */
+        function fillSentReceipt(rec){
+          currentSent = rec;
+          document.getElementById('rcBadge').textContent = rec.bank.charAt(0).toUpperCase();
+          document.getElementById('rcTitle').textContent = 'To ' + rec.bank + ' Transfer-' + rec.name.toUpperCase();
+          document.getElementById('rcAmount').textContent = fmtNaira(rec.amount);
+          var ts = timelineStamp(rec.stamp);
+          document.getElementById('rcT1').textContent = ts;
+          document.getElementById('rcT2').textContent = ts;
+          document.getElementById('rcT3').textContent = ts;
+          document.getElementById('rcTransferAmt').textContent = fmtNaira(rec.amount);
+          document.getElementById('rcFee').textContent = fmtNaira(rec.fee);
+          document.getElementById('rcPayAmt').textContent = fmtNaira(rec.amount);
+          document.getElementById('rcRecipientMain').textContent = (rec.bank + ' Transfer-' + rec.name).toUpperCase();
+          document.getElementById('rcRecipientSub').textContent = rec.bank + ' | ' + rec.acct;
+          document.getElementById('rcSession').textContent = rec.session;
+          document.getElementById('rcCompletion').textContent = completionStamp(rec.stamp);
+          document.getElementById('rcTxId').textContent = rec.txId;
+          document.getElementById('rcDisputeNote').hidden = true;
+        }
+        document.getElementById('rcBack').addEventListener('click', backToDash);
+        document.getElementById('rcSupport').addEventListener('click', function(){
+          showToast('Customer Service \u2014 we are here to help.');
+        });
+        document.getElementById('rcDispute').addEventListener('click', function(){
+          document.getElementById('rcDisputeNote').hidden = false;
+          showToast('Dispute reported');
+        });
+        var slipModal = document.getElementById('slipModal');
+        document.getElementById('rcView').addEventListener('click', function(){
+          if(!currentSent) return;
+          document.getElementById('slName').textContent = currentSent.name;
+          document.getElementById('slBank').textContent = currentSent.bank;
+          document.getElementById('slAcct').textContent = currentSent.acct;
+          document.getElementById('slAmount').textContent = fmtNaira(currentSent.amount);
+          document.getElementById('slSession').textContent = currentSent.session;
+          document.getElementById('slTx').textContent = currentSent.txId;
+          document.getElementById('slDate').textContent = completionStamp(currentSent.stamp);
+          document.getElementById('slBarcodeNum').textContent = currentSent.txId.toUpperCase();
+          slipModal.hidden = false;
+        });
+        document.getElementById('slipClose').addEventListener('click', function(){ slipModal.hidden = true; });
+        slipModal.addEventListener('click', function(e){ if(e.target === slipModal) slipModal.hidden = true; });
+
+        /* ---- received receipt ---- */
+        function fillReceivedReceipt(rec){
+          document.getElementById('rvTitle').textContent = 'Received From ' + rec.sender.toUpperCase();
+          document.getElementById('rvAmount').textContent = '+' + fmtNaira(rec.amount);
+          document.getElementById('rvSenderName').textContent = rec.sender.toUpperCase();
+          document.getElementById('rvSenderSub').textContent = rec.bank + '|' + rec.masked;
+          document.getElementById('rvRemark').textContent = rec.remark;
+          document.getElementById('rvCompletion').textContent = completionStamp(rec.stamp);
+          document.getElementById('rvTxId').textContent = rec.txId;
+          document.getElementById('rvSession').textContent = rec.session;
+        }
+        document.getElementById('rvBack').addEventListener('click', backToDash);
+        document.getElementById('rvGo').addEventListener('click', function(){
+          backToDash();
+          var wealthBtn = document.querySelector('.tab-btn[data-tab="wealth"]');
+          if(wealthBtn) wealthBtn.click();
+        });
+        document.getElementById('rvService').addEventListener('click', function(){
+          backToDash();
+          showStatus('Customer Service \u2014 our team is on hand to help with this transaction.');
+        });
+
+        /* copy buttons on receipts */
+        document.querySelectorAll('.copy-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var target = document.getElementById(btn.getAttribute('data-copy'));
+            if(!target) return;
+            var text = target.textContent.trim();
+            function done(){ showToast('Copied'); }
+            if(navigator.clipboard && navigator.clipboard.writeText){
+              navigator.clipboard.writeText(text).then(done, done);
+            } else { done(); }
+          });
+        });
+
+        /* ---- add money: credit balance + received receipt ---- */
+        document.getElementById('confirmAddBtn').addEventListener('click', function(){
+          var amt = parseFloat(addAmount.value);
+          if(!amt || amt <= 0){
+            addNote.textContent = 'Enter an amount greater than zero.';
+            addAmount.focus();
+            return;
+          }
+          balance += amt;
+          balanceVisible = true;
+          renderBalance();
+          var now = new Date();
+          var senderName = document.getElementById('addSender').value.trim().replace(/\s+/g, ' ') || 'Bank Transfer';
+          var senderBank = addBankSel.value || 'Other Bank';
+          var acct = randomAcct();
+          var rec = {
+            kind: 'received',
+            sender: senderName,
+            bank: senderBank,
+            masked: acct.slice(0, 3) + '***' + acct.slice(6),
+            remark: 'MOBILE TRANSFER',
+            amount: amt,
+            stamp: now,
+            whenLabel: 'Today \u00B7 ' + time12(now),
+            txId: genTxId(),
+            session: genSessionId('0906', 30)
+          };
+          addHistoryEntry(rec);
+          addNote.textContent = '';
+          addAmount.value = '';
+          document.getElementById('addSender').value = '';
+          addBankSel.selectedIndex = 0;
+          addPanel.hidden = true;
+          addMoneyBtn.setAttribute('aria-expanded', 'false');
+          fillReceivedReceipt(rec);
+          showFlow(receivedView);
+        });
+
+        /* quick actions, services, promos, header icons */
+        document.querySelectorAll('[data-soon]').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            showStatus(btn.getAttribute('data-soon') + ' — coming soon.');
+          });
+        });
+
+        /* bottom tab bar */
+        var tabHome = document.getElementById('tabHome');
+        var tabPanel = document.getElementById('tabPanel');
+        var tabPanelTitle = document.getElementById('tabPanelTitle');
+        var tabPanelText = document.getElementById('tabPanelText');
+        var meDetails = document.getElementById('meDetails');
+        var tabCopy = {
+          loan: ['Loan', 'Apply for a loan, track repayments, and manage your borrowing — all in one place.'],
+          wealth: ['Wealth', 'Savings plans and growth options to help your money work harder.'],
+          reward: ['Reward', 'Cashback and reward points you earn across PP.'],
+          me: ['Me', 'Your PP account details from sign-up:']
+        };
+        document.querySelectorAll('.tab-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+            btn.classList.add('active');
+            var tab = btn.getAttribute('data-tab');
+            if(tab === 'home'){
+              tabPanel.hidden = true;
+              tabHome.hidden = false;
+            } else {
+              tabHome.hidden = true;
+              tabPanel.hidden = false;
+              tabPanelTitle.textContent = tabCopy[tab][0];
+              tabPanelText.textContent = tabCopy[tab][1];
+              meDetails.hidden = tab !== 'me';
+            }
+            window.scrollTo({top:0, behavior:'smooth'});
+          });
+        });
+
+        /* back to sign-up from the Me tab */
+        document.getElementById('dashAnotherBtn').addEventListener('click', function(){
+          document.getElementById('dashboardView').hidden = true;
+          document.getElementById('signinView').hidden = true;
+          document.getElementById('signupView').hidden = false;
+          document.getElementById('receiptWrap').style.display = '';
+          document.getElementById('belowLine').style.display = '';
+          document.querySelector('.page').classList.remove('dash-mode');
+          document.body.classList.remove('dash-on');
+          form.reset();
+          strength.classList.remove('show');
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('loading');
+          submitLabel.textContent = 'Create account';
+          nameInput.focus();
+          window.scrollTo({top:0, behavior:'smooth'});
+        });
+      })();
+    </script>
+  </body>
+</html>
