@@ -690,7 +690,7 @@
               <button type="button" class="link-btn" id="historyBtn" aria-expanded="false">Transaction History ›</button>
             </div>
             <div class="bal-row">
-              <span class="bal-amt-wrap"><span class="bal-amount" id="balAmount">₦1,250.00</span><span class="bal-chev" aria-hidden="true">›</span></span>
+              <span class="bal-amt-wrap"><span class="bal-amount" id="balAmount">₦0.00</span><span class="bal-chev" aria-hidden="true">›</span></span>
               <button type="button" class="btn btn-add" id="addMoneyBtn" aria-expanded="false">Add Money</button>
             </div>
             <div class="add-panel" id="addPanel" hidden>
@@ -719,11 +719,7 @@
 
           <div class="history-panel" id="historyPanel" hidden style="margin-top:14px">
             <h3>Recent transactions</h3>
-            <ul class="tx-list" id="txList">
-              <li><div><strong>Transfer received</strong><span class="tx-when">Today · 09:41</span></div><span class="tx-amt credit">+₦2,100.00</span></li>
-              <li><div><strong>Airtime top-up</strong><span class="tx-when">Yesterday · 18:02</span></div><span class="tx-amt">−₦200.00</span></li>
-              <li><div><strong>Transfer to bank</strong><span class="tx-when">Yesterday · 12:27</span></div><span class="tx-amt">−₦1,500.00</span></li>
-            </ul>
+            <ul class="tx-list" id="txList"></ul>
           </div>
 
           <p class="dash-status" id="dashStatus" role="status" style="margin:14px 0 0"></p>
@@ -747,9 +743,9 @@
             </button>
           </nav>
 
-          <div class="tx-banner" style="margin-top:14px">
-            <div><strong>Transfer Successful</strong><span>₦2,100.00&nbsp;&nbsp;Success</span></div>
-            <span class="tx-when">Today 09:41</span>
+          <div class="tx-banner" id="latestBanner" style="margin-top:14px" hidden>
+            <div><strong id="latestTitle">Transfer Successful</strong><span id="latestAmt"></span></div>
+            <span class="tx-when" id="latestWhen"></span>
           </div>
 
           <div class="services" style="margin-top:14px" role="group" aria-label="Services">
@@ -801,6 +797,7 @@
               <div class="slip-row"><dt>JOINED</dt><dd id="meDate">—</dd></div>
             </dl>
             <button type="button" class="btn btn-secondary" id="dashAnotherBtn" style="width:100%">Create another account</button>
+            <button type="button" class="btn btn-secondary" id="signOutBtn" style="width:100%">Sign out</button>
           </div>
         </div>
 
@@ -1063,8 +1060,26 @@
       <p class="below" id="belowLine">PP &nbsp;·&nbsp; MONEY, MADE SIMPLE</p>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       (function(){
+        /* ---- Supabase backend ---- */
+        var SB_URL = 'https://zvubytosshkxpbpvgcsw.supabase.co';
+        var SB_KEY = 'sb_publishable_c1sl1Mw4Y5EMWjkmYSzEow_m5Yowqk0';
+        var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+        var currentUser = null;
+        var currentUserId = null;
+        function phoneToEmail(digits){ return String(digits || '').replace(/\D/g, '') + '@pp.internal'; }
+        function errMsg(e){ return (e && e.message) ? e.message : String(e || ''); }
+        function friendlyAuthError(err){
+          var m = errMsg(err);
+          if(/already registered|already exists|already been registered/i.test(m)) return 'An account with this phone number already exists — try signing in instead.';
+          if(/invalid login credentials/i.test(m)) return 'Invalid phone number or password — please check and try again.';
+          if(/password should be/i.test(m)) return 'That password is too weak — use at least 8 characters with a letter and a number.';
+          if(/failed to fetch|network|load failed/i.test(m)) return 'Could not reach the server — check your connection and try again.';
+          return m || 'Something went wrong — please try again.';
+        }
+
         var form = document.getElementById('signupForm');
         var nameInput = document.getElementById('name');
         var phoneInput = document.getElementById('phone');
@@ -1202,7 +1217,6 @@
         });
 
         /* ============ SIGN IN ============ */
-        var sessionAccount = null; /* set on sign-up; reused to greet by name on sign-in */
         var signupView = document.getElementById('signupView');
         var signinView = document.getElementById('signinView');
         var siForm = document.getElementById('signinForm');
@@ -1316,26 +1330,31 @@
             if(firstBad) firstBad.focus();
             return;
           }
+          if(!sb){
+            siFormError.textContent = 'Could not reach the server — check your connection and try again.';
+            siFormError.classList.add('show');
+            return;
+          }
           siSubmitBtn.disabled = true;
           siSubmitBtn.classList.add('loading');
           siSubmitLabel.textContent = 'Signing in\u2026';
-          var phone = siFormatPhone();
-          /* Simulated sign-in (static page — no server call). If an account was
-             created earlier in this session with the same number, greet by name. */
-          setTimeout(function(){
-            var now = new Date();
-            var receiptNo = 'PP-' + String(Math.floor(100000 + Math.random()*900000));
-            var dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) + ' · ' +
-                          now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-            var name = (sessionAccount && sessionAccount.phone === phone) ? sessionAccount.name : 'Friend';
+          var email = phoneToEmail(siNormalizedPhone().digits);
+          sb.auth.signInWithPassword({ email: email, password: siPwInput.value }).then(function(res){
             siSubmitBtn.disabled = false;
             siSubmitBtn.classList.remove('loading');
             siSubmitLabel.textContent = 'Sign in';
-            showDashboard(name, phone, receiptNo, dateStr, 'Signed in — welcome back to PP.');
-          }, 700);
+            if(res.error){
+              siFormError.textContent = friendlyAuthError(res.error);
+              siFormError.classList.add('show');
+              return;
+            }
+            siFormError.classList.remove('show');
+            siFormError.textContent = '';
+            enterApp(res.data.user, 'Signed in — welcome back to PP.');
+          });
         });
 
-        /* ---- submit ---- */
+        /* ---- submit: create the account in Supabase ---- */
         form.addEventListener('submit', function(e){
           e.preventDefault();
           var okName = validateName();
@@ -1348,27 +1367,70 @@
             if(firstBad) firstBad.focus();
             return;
           }
+          if(!sb){
+            formError.textContent = 'Could not reach the server — check your connection and try again.';
+            formError.classList.add('show');
+            return;
+          }
           submitBtn.disabled = true;
           submitBtn.classList.add('loading');
           submitLabel.textContent = 'Creating account\u2026';
 
           var name = nameInput.value.trim().replace(/\s+/g,' ');
-          var phone = formatPhone();
+          var digits = normalizedPhone().digits;
+          var email = phoneToEmail(digits);
+          var password = pwInput.value;
 
-          /* Simulated account creation (static page — no server call).
-             Brief pause so the action feels deliberate, then open the dashboard. */
-          setTimeout(function(){
-            var now = new Date();
-            var receiptNo = 'PP-' + String(Math.floor(100000 + Math.random()*900000));
-            var dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) + ' · ' +
-                          now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-            sessionAccount = { name: name, phone: phone };
-            showDashboard(name, phone, receiptNo, dateStr);
-          }, 700);
+          function resetBtn(){
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            submitLabel.textContent = 'Create account';
+          }
+          function finishSignup(user){
+            sb.from('pp_profiles').insert({ id: user.id, phone: digits, full_name: name })
+              .then(function(){
+                return sb.from('pp_wallets').insert({ user_id: user.id, balance: 0 });
+              })
+              .then(function(){
+                resetBtn();
+                enterApp(user);
+              });
+          }
+          sb.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { full_name: name, phone: digits } }
+          }).then(function(res){
+            if(res.error){
+              resetBtn();
+              formError.textContent = friendlyAuthError(res.error);
+              formError.classList.add('show');
+              return;
+            }
+            var user = res.data.user;
+            if(!user){
+              resetBtn();
+              formError.textContent = 'Something went wrong creating your account — please try again.';
+              formError.classList.add('show');
+              return;
+            }
+            if(res.data.session){ finishSignup(user); return; }
+            /* No session came back — sign in right away with the same credentials. */
+            sb.auth.signInWithPassword({ email: email, password: password }).then(function(si){
+              if(si.error || !si.data.user){
+                resetBtn();
+                formError.textContent = 'Account created — please sign in to continue.';
+                formError.classList.add('show');
+                showSignin();
+                return;
+              }
+              finishSignup(si.data.user);
+            });
+          });
         });
 
         /* ============ DASHBOARD ============ */
-        var balance = 1250.00;
+        var balance = 0;
         var balanceVisible = true;
         var balAmount = document.getElementById('balAmount');
         var dashStatus = document.getElementById('dashStatus');
@@ -1441,6 +1503,165 @@
           addMoneyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
           if(open) addAmount.focus();
         });
+        /* ============ ACCOUNT DATA (SUPABASE) ============ */
+        function formatDigitsPhone(digits){
+          digits = String(digits || '').replace(/\D/g, '');
+          if(!digits) return '';
+          if(digits.length > 10){
+            var code = digits.slice(0, digits.length - 10);
+            var nat = digits.slice(-10);
+            return '+' + code + ' ' + nat.slice(0, 3) + ' ' + nat.slice(3, 6) + ' ' + nat.slice(6);
+          }
+          return '+' + digits;
+        }
+        function fmtJoined(d){
+          return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) + ' \u00B7 ' +
+                 d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+        }
+        function whenLabel(d){
+          var now = new Date();
+          var yest = new Date(now); yest.setDate(now.getDate() - 1);
+          if(d.toDateString() === now.toDateString()) return 'Today \u00B7 ' + time12(d);
+          if(d.toDateString() === yest.toDateString()) return 'Yesterday \u00B7 ' + time12(d);
+          return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) + ' \u00B7 ' + time12(d);
+        }
+        function enterApp(user, bannerText){
+          currentUser = user;
+          currentUserId = user.id;
+          var meta = user.user_metadata || {};
+          function go(profile){
+            var p = profile || {};
+            var name = p.full_name || meta.full_name || 'Friend';
+            var digits = p.phone || meta.phone || (user.email ? user.email.replace('@pp.internal', '') : '');
+            var ref = 'PP-' + user.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6).toUpperCase();
+            var joined = p.created_at ? fmtJoined(new Date(p.created_at)) : fmtJoined(new Date());
+            showDashboard(name, formatDigitsPhone(digits), ref, joined, bannerText);
+            loadAccountData();
+          }
+          if(!sb){ go(null); return; }
+          sb.from('pp_profiles').select('*').eq('id', user.id).maybeSingle().then(function(res){
+            go(!res.error && res.data ? res.data : null);
+          }, function(){ go(null); });
+        }
+        function loadAccountData(){
+          if(!sb || !currentUserId) return;
+          sb.from('pp_wallets').select('balance').eq('user_id', currentUserId).maybeSingle().then(function(res){
+            if(!res.error && res.data){
+              balance = Number(res.data.balance) || 0;
+              renderBalance();
+            }
+          });
+          sb.from('pp_transactions').select('*').eq('user_id', currentUserId).order('created_at', { ascending:false }).then(function(res){
+            if(!res.error && res.data) renderHistory(res.data);
+          });
+        }
+        function recFromRow(row){
+          var stamp = row.created_at ? new Date(row.created_at) : new Date();
+          var rec = {
+            id: row.id,
+            amount: Number(row.amount) || 0,
+            stamp: stamp,
+            whenLabel: whenLabel(stamp),
+            txId: row.transaction_no || '',
+            session: row.session_id || '',
+            remark: row.remark || ''
+          };
+          if(row.direction === 'received'){
+            rec.kind = 'received';
+            rec.sender = row.counterparty_name || 'Bank Transfer';
+            rec.bank = row.bank || 'Other Bank';
+            rec.masked = row.masked_account || '';
+          } else {
+            rec.kind = 'sent';
+            rec.name = row.counterparty_name || '';
+            rec.bank = row.bank || 'PP Wallet';
+            rec.acct = row.account_no || row.recipient_phone || '';
+            rec.fee = 10;
+          }
+          return rec;
+        }
+        function renderHistory(rows){
+          txRecords = {};
+          var list = document.getElementById('txList');
+          list.innerHTML = '';
+          var recs = rows.map(recFromRow);
+          recs.forEach(function(rec){ addHistoryEntry(rec); });
+          if(!recs.length){
+            var li = document.createElement('li');
+            var span = document.createElement('span');
+            span.className = 'tx-when';
+            span.textContent = 'No transactions yet.';
+            li.appendChild(span);
+            list.appendChild(li);
+          }
+          updateLatestBanner(recs.length ? recs[0] : null);
+        }
+        function updateLatestBanner(rec){
+          var banner = document.getElementById('latestBanner');
+          if(!banner) return;
+          if(!rec){ banner.hidden = true; return; }
+          banner.hidden = false;
+          document.getElementById('latestTitle').textContent = rec.kind === 'sent' ? 'Transfer Successful' : 'Transfer Received';
+          document.getElementById('latestAmt').textContent = fmtNaira(rec.amount) + '\u00A0\u00A0Success';
+          document.getElementById('latestWhen').textContent = rec.whenLabel.replace(' \u00B7 ', ' ');
+        }
+        function insertTx(payload){
+          return sb.from('pp_transactions').insert(payload).then(function(r){
+            if(r.error){
+              var minimal = {
+                user_id: payload.user_id, direction: payload.direction, amount: payload.amount,
+                counterparty_name: payload.counterparty_name, session_id: payload.session_id,
+                transaction_no: payload.transaction_no, remark: payload.remark
+              };
+              return sb.from('pp_transactions').insert(minimal);
+            }
+            return r;
+          });
+        }
+        function isNotFound(e){ return errMsg(e).indexOf('Recipient not found') !== -1; }
+        function isInsufficient(e){ return /insufficient/i.test(errMsg(e)); }
+        function rpcIds(data){
+          var d = Array.isArray(data) ? data[0] : data;
+          if(!d) return { sessionId: genSessionId('1000', 34), txId: genTxId() };
+          return {
+            sessionId: d.session_id || genSessionId('1000', 34),
+            txId: d.transaction_no || d.transaction_id || genTxId()
+          };
+        }
+        /* Transfer chain: PP wallet RPC -> OP cross-app RPC -> external bank. */
+        function doTransfer(t){
+          var args = { p_recipient_phone: t.acct, p_amount: t.amount };
+          return sb.rpc('pp_transfer', args).then(function(r){
+            if(!r.error) return rpcIds(r.data);
+            if(isInsufficient(r.error)) throw new Error('Insufficient balance \u2014 you do not have enough funds for this transfer.');
+            if(!isNotFound(r.error)) throw new Error(errMsg(r.error) || 'Transfer failed \u2014 please try again.');
+            return sb.rpc('pp_to_op_transfer', args).then(function(r2){
+              if(!r2.error) return rpcIds(r2.data);
+              if(isInsufficient(r2.error)) throw new Error('Insufficient balance \u2014 you do not have enough funds for this transfer.');
+              if(!isNotFound(r2.error)) throw new Error(errMsg(r2.error) || 'Transfer failed \u2014 please try again.');
+              return externalTransfer(t);
+            });
+          });
+        }
+        function externalTransfer(t){
+          return sb.from('pp_wallets').select('balance').eq('user_id', currentUserId).maybeSingle().then(function(res){
+            var bal = (!res.error && res.data) ? (Number(res.data.balance) || 0) : balance;
+            if(t.amount > bal) throw new Error('Insufficient balance \u2014 you have ' + fmtNaira(bal) + ' available.');
+            var session = genSessionId('1000', 34);
+            var txNo = genTxId();
+            return sb.from('pp_wallets').update({ balance: bal - t.amount }).eq('user_id', currentUserId).then(function(u){
+              if(u.error) throw new Error(errMsg(u.error) || 'Transfer failed \u2014 please try again.');
+              return insertTx({
+                user_id: currentUserId, direction: 'sent', amount: t.amount,
+                counterparty_name: t.name, bank: t.bank, account_no: t.acct,
+                session_id: session, transaction_no: txNo, remark: ''
+              }).then(function(){
+                return { sessionId: session, txId: txNo };
+              });
+            });
+          });
+        }
+
         /* ============ TRANSFERS, RECEIPTS & HISTORY ============ */
         var BANKS = ['Access Bank','Ecobank Nigeria','Fidelity Bank','First Bank of Nigeria','First City Monument Bank','Globus Bank','Guaranty Trust Bank','Heritage Bank','Jaiz Bank','Keystone Bank','Kuda Bank','Moniepoint','OPay','PalmPay','Polaris Bank','Providus Bank','Stanbic IBTC Bank','Standard Chartered Bank','Sterling Bank','Union Bank of Nigeria','United Bank for Africa','Unity Bank','Wema Bank','Zenith Bank'];
         var currentUserName = '';
@@ -1541,7 +1762,7 @@
             if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
           });
           var list = document.getElementById('txList');
-          list.insertBefore(li, list.firstChild);
+          list.appendChild(li);
         }
         function openReceipt(id){
           var rec = txRecords[id];
@@ -1628,32 +1849,51 @@
         document.getElementById('cfCancel').addEventListener('click', backToDash);
         document.getElementById('cfConfirm').addEventListener('click', function(){
           if(!pendingTransfer) return;
+          if(!sb || !currentUserId){
+            showToast('You need to be signed in to send money.');
+            return;
+          }
           if(pendingTransfer.amount > balance){
             showToast('Insufficient balance for this transfer.');
             showFlow(transferView);
             return;
           }
-          balance -= pendingTransfer.amount;
-          balanceVisible = true;
-          renderBalance();
-          var now = new Date();
-          var rec = {
-            kind: 'sent',
-            name: pendingTransfer.name,
-            bank: pendingTransfer.bank,
-            acct: pendingTransfer.acct,
-            amount: pendingTransfer.amount,
-            fee: 10,
-            stamp: now,
-            whenLabel: 'Today \u00B7 ' + time12(now),
-            txId: genTxId(),
-            session: genSessionId('1000', 34)
-          };
-          addHistoryEntry(rec);
-          fillSentReceipt(rec);
-          pendingTransfer = null;
-          document.getElementById('transferForm').reset();
-          showFlow(receiptView);
+          var t = pendingTransfer;
+          var btn = document.getElementById('cfConfirm');
+          btn.disabled = true;
+          btn.textContent = 'Sending\u2026';
+          doTransfer(t).then(function(ids){
+            btn.disabled = false;
+            btn.textContent = 'Confirm Transfer';
+            balanceVisible = true;
+            var now = new Date();
+            var rec = {
+              kind: 'sent',
+              name: t.name,
+              bank: t.bank,
+              acct: t.acct,
+              amount: t.amount,
+              fee: 10,
+              stamp: now,
+              whenLabel: whenLabel(now),
+              txId: ids.txId,
+              session: ids.sessionId
+            };
+            pendingTransfer = null;
+            document.getElementById('transferForm').reset();
+            loadAccountData();
+            fillSentReceipt(rec);
+            showFlow(receiptView);
+          }, function(err){
+            btn.disabled = false;
+            btn.textContent = 'Confirm Transfer';
+            var msg = (err && err.message) ? err.message : 'Transfer failed \u2014 please try again.';
+            showToast(msg);
+            if(/insufficient/i.test(msg)){
+              showFlow(transferView);
+              validateTfAmount();
+            }
+          });
         });
 
         /* ---- sent receipt ---- */
@@ -1670,7 +1910,7 @@
           document.getElementById('rcFee').textContent = fmtNaira(rec.fee);
           document.getElementById('rcPayAmt').textContent = fmtNaira(rec.amount);
           document.getElementById('rcRecipientMain').textContent = (rec.bank + ' Transfer-' + rec.name).toUpperCase();
-          document.getElementById('rcRecipientSub').textContent = rec.bank + ' | ' + rec.acct;
+          document.getElementById('rcRecipientSub').textContent = rec.acct ? (rec.bank + ' | ' + rec.acct) : rec.bank;
           document.getElementById('rcSession').textContent = rec.session;
           document.getElementById('rcCompletion').textContent = completionStamp(rec.stamp);
           document.getElementById('rcTxId').textContent = rec.txId;
@@ -1705,7 +1945,7 @@
           document.getElementById('rvTitle').textContent = 'Received From ' + rec.sender.toUpperCase();
           document.getElementById('rvAmount').textContent = '+' + fmtNaira(rec.amount);
           document.getElementById('rvSenderName').textContent = rec.sender.toUpperCase();
-          document.getElementById('rvSenderSub').textContent = rec.bank + '|' + rec.masked;
+          document.getElementById('rvSenderSub').textContent = rec.masked ? (rec.bank + '|' + rec.masked) : rec.bank;
           document.getElementById('rvRemark').textContent = rec.remark;
           document.getElementById('rvCompletion').textContent = completionStamp(rec.stamp);
           document.getElementById('rvTxId').textContent = rec.txId;
@@ -1743,34 +1983,62 @@
             addAmount.focus();
             return;
           }
-          balance += amt;
-          balanceVisible = true;
-          renderBalance();
-          var now = new Date();
+          if(!sb || !currentUserId){
+            addNote.textContent = 'You need to be signed in to add money.';
+            return;
+          }
+          var btn = document.getElementById('confirmAddBtn');
+          btn.disabled = true;
+          btn.textContent = 'Adding\u2026';
           var senderName = document.getElementById('addSender').value.trim().replace(/\s+/g, ' ') || 'Bank Transfer';
           var senderBank = addBankSel.value || 'Other Bank';
-          var acct = randomAcct();
-          var rec = {
-            kind: 'received',
-            sender: senderName,
-            bank: senderBank,
-            masked: acct.slice(0, 3) + '***' + acct.slice(6),
-            remark: 'MOBILE TRANSFER',
-            amount: amt,
-            stamp: now,
-            whenLabel: 'Today \u00B7 ' + time12(now),
-            txId: genTxId(),
-            session: genSessionId('0906', 30)
-          };
-          addHistoryEntry(rec);
-          addNote.textContent = '';
-          addAmount.value = '';
-          document.getElementById('addSender').value = '';
-          addBankSel.selectedIndex = 0;
-          addPanel.hidden = true;
-          addMoneyBtn.setAttribute('aria-expanded', 'false');
-          fillReceivedReceipt(rec);
-          showFlow(receivedView);
+          sb.from('pp_wallets').select('balance').eq('user_id', currentUserId).maybeSingle()
+            .then(function(res){
+              var bal = (!res.error && res.data) ? (Number(res.data.balance) || 0) : balance;
+              return sb.from('pp_wallets').update({ balance: bal + amt }).eq('user_id', currentUserId);
+            })
+            .then(function(u){
+              if(u.error) throw new Error(errMsg(u.error) || 'Could not add money \u2014 please try again.');
+              var session = genSessionId('0906', 30);
+              var txNo = genTxId();
+              return insertTx({
+                user_id: currentUserId, direction: 'received', amount: amt,
+                counterparty_name: senderName, bank: senderBank,
+                session_id: session, transaction_no: txNo, remark: 'MOBILE TRANSFER'
+              }).then(function(){ return { sessionId: session, txId: txNo }; });
+            })
+            .then(function(ids){
+              btn.disabled = false;
+              btn.textContent = 'Add';
+              balanceVisible = true;
+              var now = new Date();
+              var acct = randomAcct();
+              var rec = {
+                kind: 'received',
+                sender: senderName,
+                bank: senderBank,
+                masked: acct.slice(0, 3) + '***' + acct.slice(6),
+                remark: 'MOBILE TRANSFER',
+                amount: amt,
+                stamp: now,
+                whenLabel: whenLabel(now),
+                txId: ids.txId,
+                session: ids.sessionId
+              };
+              addNote.textContent = '';
+              addAmount.value = '';
+              document.getElementById('addSender').value = '';
+              addBankSel.selectedIndex = 0;
+              addPanel.hidden = true;
+              addMoneyBtn.setAttribute('aria-expanded', 'false');
+              loadAccountData();
+              fillReceivedReceipt(rec);
+              showFlow(receivedView);
+            }, function(err){
+              btn.disabled = false;
+              btn.textContent = 'Add';
+              addNote.textContent = (err && err.message) ? err.message : 'Could not add money \u2014 please try again.';
+            });
         });
 
         /* quick actions, services, promos, header icons */
@@ -1828,6 +2096,42 @@
           nameInput.focus();
           window.scrollTo({top:0, behavior:'smooth'});
         });
+
+        /* sign out (Me tab) — back to the sign-in screen */
+        document.getElementById('signOutBtn').addEventListener('click', function(){
+          function done(){
+            currentUser = null;
+            currentUserId = null;
+            balance = 0;
+            txRecords = {};
+            document.getElementById('txList').innerHTML = '';
+            updateLatestBanner(null);
+            flowViews.forEach(function(v){ v.hidden = true; });
+            document.getElementById('dashboardView').hidden = true;
+            tabPanel.hidden = true;
+            tabHome.hidden = false;
+            document.querySelectorAll('.tab-btn').forEach(function(b){
+              b.classList.toggle('active', b.getAttribute('data-tab') === 'home');
+            });
+            document.getElementById('signupView').hidden = true;
+            document.getElementById('signinView').hidden = false;
+            document.getElementById('receiptWrap').style.display = '';
+            document.getElementById('belowLine').style.display = '';
+            document.querySelector('.page').classList.remove('dash-mode');
+            document.body.classList.remove('dash-on');
+            siPwInput.value = '';
+            window.scrollTo({top:0, behavior:'smooth'});
+          }
+          if(sb){ sb.auth.signOut().then(done, done); } else { done(); }
+        });
+
+        /* restore an existing session on load — straight to the dashboard */
+        if(sb){
+          sb.auth.getSession().then(function(res){
+            var session = res.data && res.data.session;
+            if(session && session.user) enterApp(session.user, 'Signed in \u2014 welcome back to PP.');
+          });
+        }
       })();
     </script>
   </body>
