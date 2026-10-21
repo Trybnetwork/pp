@@ -334,6 +334,12 @@
       .tx-list .tx-when{ font-size:10.5px; color:var(--ink-3); }
       .tx-amt{ font-weight:700; font-size:12px; white-space:nowrap; }
       .tx-amt.credit{ color:#0E9F6E; }
+      /* ============ ACCESS LOCK SCREEN ============ */
+      .page[hidden]{ display:none; }
+      .lock-wrap{ min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 18px 36px; }
+      .lock-wrap[hidden]{ display:none; }
+      .lock-err{ display:none; font-size:11.5px; color:var(--error); margin-top:8px; line-height:1.45; font-weight:500; }
+      .lock-err.show{ display:block; }
       .quick-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
       .quick-card{ background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:15px 4px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; font-size:11.5px; font-weight:600; cursor:pointer; color:var(--ink); font-family:inherit; }
       .quick-card:hover{ border-color:color-mix(in srgb, var(--accent) 45%, transparent); }
@@ -496,7 +502,45 @@
     </style>
   </head>
   <body>
-    <main class="page">
+    <!-- ============ ACCESS LOCK SCREEN (shown first; app stays hidden until unlocked) ============ -->
+    <div class="lock-wrap" id="lockScreen">
+      <div class="receipt-wrap">
+        <div class="receipt">
+          <div class="head">
+            <div class="mark" aria-hidden="true">
+              <span style="font-weight:700;font-size:13.5px;letter-spacing:.03em">PP</span>
+            </div>
+            <div class="brand-mono">PP</div>
+            <h1>Restricted access</h1>
+            <p class="sub">This app is restricted. Enter the access code to continue.</p>
+          </div>
+
+          <div class="tear" aria-hidden="true" style="margin-top:14px"><span>Access code</span></div>
+
+          <form id="lockForm" novalidate>
+            <div class="field" style="margin-bottom:0">
+              <label for="lockCode">Access code</label>
+              <div class="input-wrap">
+                <input id="lockCode" name="lockCode" type="password" autocomplete="off" placeholder="Enter the access code" autocapitalize="none" spellcheck="false" />
+              </div>
+              <p class="lock-err" id="lockError" role="alert"></p>
+            </div>
+
+            <button type="submit" class="btn" id="lockBtn">
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="lockLabel">Unlock</span>
+            </button>
+          </form>
+
+          <div class="foot">
+            <p class="terms">Access is limited to authorised users only.</p>
+          </div>
+        </div>
+        <div class="receipt-edge" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <main class="page" id="appRoot" hidden>
       <div class="receipt-wrap" id="receiptWrap">
         <div class="receipt">
           <!-- ============ SIGN UP VIEW ============ -->
@@ -1068,7 +1112,7 @@
         /* ---- Supabase backend ---- */
         var SB_URL = 'https://zvubytosshkxpbpvgcsw.supabase.co';
         var SB_KEY = 'sb_publishable_c1sl1Mw4Y5EMWjkmYSzEow_m5Yowqk0';
-        var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+        var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'pp-auth-session' } }) : null;
         var currentUser = null;
         var currentUserId = null;
         function phoneToEmail(digits){ return String(digits || '').replace(/\D/g, '') + '@pp.internal'; }
@@ -1395,7 +1439,7 @@
               })
               .then(function(){
                 resetBtn();
-                enterApp(user);
+                enterApp(user, 'Account created — welcome to PP.');
               });
           }
           sb.auth.signUp({
@@ -2185,12 +2229,94 @@
           if(sb){ sb.auth.signOut().then(done, done); } else { done(); }
         });
 
-        /* restore an existing session on load — straight to the dashboard */
-        if(sb){
-          sb.auth.getSession().then(function(res){
-            var session = res.data && res.data.session;
-            if(session && session.user) enterApp(session.user, 'Signed in \u2014 welcome back to PP.');
+        /* ============ ACCESS GATE ============
+           The lock screen is the first thing shown; the app root stays hidden
+           until this browser session is unlocked. The code is verified
+           server-side only, via the pp_check_access_code RPC. */
+        var lockScreen = document.getElementById('lockScreen');
+        var appRoot = document.getElementById('appRoot');
+        var lockForm = document.getElementById('lockForm');
+        var lockCode = document.getElementById('lockCode');
+        var lockBtn = document.getElementById('lockBtn');
+        var lockLabel = document.getElementById('lockLabel');
+        var lockError = document.getElementById('lockError');
+
+        function gateUnlocked(){
+          try { return window.sessionStorage.getItem('pp-gate-ok') === '1'; }
+          catch(e){ return false; }
+        }
+        function bootApp(){
+          /* restore an existing session — straight to the dashboard */
+          if(sb){
+            sb.auth.getSession().then(function(res){
+              var session = res.data && res.data.session;
+              if(session && session.user) enterApp(session.user, 'Signed in \u2014 welcome back to PP.');
+            });
+          }
+        }
+        function unlockApp(){
+          try { window.sessionStorage.setItem('pp-gate-ok', '1'); } catch(e) {}
+          lockScreen.hidden = true;
+          appRoot.hidden = false;
+          bootApp();
+        }
+        function showLockError(msg){
+          lockError.textContent = msg;
+          lockError.classList.add('show');
+        }
+        function setLockBusy(busy){
+          lockBtn.disabled = busy;
+          lockBtn.classList.toggle('loading', busy);
+          lockLabel.textContent = busy ? 'Checking\u2026' : 'Unlock';
+        }
+        lockCode.addEventListener('input', function(){
+          lockError.classList.remove('show');
+          lockError.textContent = '';
+        });
+        lockForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          if(lockBtn.disabled) return;
+          lockError.classList.remove('show');
+          lockError.textContent = '';
+          var code = lockCode.value;
+          if(!code){
+            showLockError('Incorrect code.');
+            lockCode.focus();
+            return;
+          }
+          if(!sb){
+            /* No client at all — the check cannot run, so fail closed. */
+            showLockError("Access system isn't set up yet \u2014 contact the admin.");
+            return;
+          }
+          setLockBusy(true);
+          sb.rpc('pp_check_access_code', { p_code: code }).then(function(res){
+            setLockBusy(false);
+            if(res.error){
+              /* RPC failed (e.g. function missing) — fail closed. */
+              showLockError("Access system isn't set up yet \u2014 contact the admin.");
+              return;
+            }
+            if(res.data === true){
+              unlockApp();
+            } else {
+              showLockError('Incorrect code.');
+              lockCode.focus();
+              lockCode.select();
+            }
+          }, function(){
+            setLockBusy(false);
+            showLockError("Access system isn't set up yet \u2014 contact the admin.");
           });
+        });
+
+        /* On load: already unlocked this session → skip the lock entirely. */
+        if(gateUnlocked()){
+          lockScreen.hidden = true;
+          appRoot.hidden = false;
+          bootApp();
+        } else {
+          lockCode.focus();
         }
       })();
     </script>
